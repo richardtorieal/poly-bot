@@ -1,0 +1,13 @@
+strategy:
+  name: "BTCTrendStrategy"
+  parameters:
+    btc_threshold: 0.005 # Increase from 0.0005 to 0.5%
+    lookback_minutes: 15 # Increase from 5 to 15m
+    pos_size_pct: 0.10
+    exit_profit_pct: 0.05 # Target 5% profit
+    stop_loss_pct: 0.02   # 2% stop loss
+
+backtest:
+  initial_capital: 1000.0
+  is_oos_split: 0.8  # 80% In-Sample
+  slippage_bps: 10   # Increase to 10bps for more realism

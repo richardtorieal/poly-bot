@@ -1,0 +1,11 @@
+polymarket-client
+httpx
+pydantic
+pydantic-settings
+python-dotenv
+loguru
+ruff
+pytest
+pytest-asyncio
+websockets
+click

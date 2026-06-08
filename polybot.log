@@ -1,0 +1,7 @@
+2026-05-31 10:14:08 | INFO     | tests.test_initialization:test_logger_initialization:5 - Testing logger initialization
+2026-05-31 10:14:16 | INFO     | tests.test_initialization:test_logger_initialization:5 - Testing logger initialization
+2026-05-31 10:14:16 | INFO     | tests.test_initialization:test_log_file_creation:9 - Forcing file creation
+2026-05-31 10:14:17 | INFO     | tests.test_basic:test_logger_init:7 - Testing logger initialization
+2026-05-31 10:14:17 | INFO     | src.strategies.base_strategy:__init__:13 - Initialized strategy: Mock
+2026-05-31 10:14:17 | INFO     | src.strategies.base_strategy:start:19 - Starting execution for Mock
+2026-05-31 10:14:17 | INFO     | src.strategies.base_strategy:stop:25 - Stopping execution for Mock
