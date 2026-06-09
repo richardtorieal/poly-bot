@@ -87,7 +87,7 @@ def optimize(slug: str):
         logger.warning(f"✅ New Optimal Margin Found: {new_margin*100:.2f}%")
         
         # 3. Update PM2 Live
-        cmd = f"pm2 restart poly-bot -- run --strategy negative-risk --margin-threshold {new_margin}"
+        cmd = f"pm2 restart poly-bot-paper -- run --strategy negative-risk --margin-threshold {new_margin}"
         subprocess.run(cmd, shell=True)
         logger.info("🚀 PM2 Process updated and restarted with new margin.")
         await downloader.close()

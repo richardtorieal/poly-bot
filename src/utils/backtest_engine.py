@@ -92,3 +92,79 @@ class BacktestEngine:
             "total_trades": trades_count,
             "win_rate": win_rate
         }
+
+    def simulate_negative_risk(self, data_frames: List[pd.DataFrame], margin_threshold: float = 0.005) -> Dict[str, Any]:
+        """
+        Simulates Negative Risk (Bundle Arb) strategy.
+        """
+        if not data_frames:
+            return {
+                "initial_balance": self.initial_capital,
+                "final_balance": self.initial_capital,
+                "total_pnl": 0.0,
+                "total_trades": 0,
+                "min_bundle_price": 0.0,
+                "max_bundle_price": 0.0
+            }
+
+        # Align all dataframes by timestamp
+        combined = pd.concat([df[['p']] for df in data_frames], axis=1).ffill().dropna()
+        if combined.empty:
+            return {
+                "initial_balance": self.initial_capital,
+                "final_balance": self.initial_capital,
+                "total_pnl": 0.0,
+                "total_trades": 0,
+                "min_bundle_price": 0.0,
+                "max_bundle_price": 0.0
+            }
+
+        combined['bundle_price'] = combined.sum(axis=1)
+        
+        balance = self.initial_capital
+        trades_count = 0
+        
+        # Simple simulation: Buy when bundle_price < (1 - margin_threshold)
+        # We assume each trade uses $100 of capital for simplicity or a fixed portion
+        bet_size = 100.0
+        
+        # To avoid overlapping trades in a simple backtest, we'll use a cooldown or just count signals
+        # Actually, let's just count every time it dips below threshold as a potential trade
+        # In reality, you'd hold until resolution, but for a "scanning" backtest, 
+        # we can just sum the theoretical profits.
+        
+        for price in combined['bundle_price']:
+            if price < (1.0 - margin_threshold):
+                profit = (1.0 / price - 1.0) * bet_size
+                # Deduct slippage
+                profit -= bet_size * self.slippage
+                balance += profit
+                trades_count += 1
+
+        return {
+            "initial_balance": self.initial_capital,
+            "final_balance": balance,
+            "total_pnl": balance - self.initial_capital,
+            "total_trades": trades_count,
+            "min_bundle_price": combined['bundle_price'].min(),
+            "max_bundle_price": combined['bundle_price'].max()
+        }
+
+    def auto_tune_negative_risk(self, data_frames: List[pd.DataFrame]) -> Dict[str, Any]:
+        """
+        Finds the optimal margin_threshold using grid search.
+        """
+        best_margin = 0.005
+        max_pnl = -np.inf
+        
+        # Test margins from 0.1% to 5.0%
+        for m in np.linspace(0.001, 0.05, 50):
+            res = self.simulate_negative_risk(data_frames, margin_threshold=m)
+            if res['total_pnl'] > max_pnl:
+                max_pnl = res['total_pnl']
+                best_margin = m
+                
+        return {
+            "margin_threshold": best_margin,
+            "expected_pnl": max_pnl
+        }
