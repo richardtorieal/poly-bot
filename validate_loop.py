@@ -36,7 +36,8 @@ def run_experiment():
     
     strategy = BTCTrendStrategy(
         btc_threshold=config['strategy']['parameters']['btc_threshold'],
-        lookback_minutes=config['strategy']['parameters']['lookback_minutes']
+        lookback_minutes=config['strategy']['parameters']['lookback_minutes'],
+        er_threshold=config['strategy']['parameters'].get('er_threshold', 0.5)
     )
 
     # 1. Run In-Sample

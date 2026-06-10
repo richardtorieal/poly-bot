@@ -14,18 +14,34 @@ class BTCTrendStrategy(BaseStrategy):
     Simple Lead-Lag strategy: If BTC moves more than X% in Y minutes, 
     bet on Polymarket catching up.
     """
-    def __init__(self, btc_threshold: float = 0.0005, lookback_minutes: int = 5):
+    def __init__(self, btc_threshold: float = 0.0005, lookback_minutes: int = 5, er_threshold: float = 0.5):
         self.btc_threshold = btc_threshold
         self.lookback_minutes = lookback_minutes
+        self.er_threshold = er_threshold
 
     def decide(self, current_data: pd.Series, history: pd.DataFrame) -> str:
         if len(history) < self.lookback_minutes:
             return "HOLD"
             
-        past_price = history.iloc[-self.lookback_minutes]['btc_price']
+        relevant_history = history.iloc[-self.lookback_minutes:]
+        past_price = relevant_history.iloc[0]['btc_price']
         current_btc = current_data['btc_price']
         
         change = (current_btc - past_price) / past_price
+        
+        # Efficiency Ratio (ER)
+        # ER = total_change / sum_of_absolute_minute_changes
+        price_diffs = relevant_history['btc_price'].diff().abs()
+        volatility = price_diffs.sum() + abs(current_btc - relevant_history.iloc[-1]['btc_price'])
+        
+        if volatility == 0:
+            er = 0
+        else:
+            er = abs(current_btc - past_price) / volatility
+
+        # Only enter if the trend is "efficient"
+        if er < self.er_threshold:
+            return "HOLD"
         
         if change > self.btc_threshold:
             return "YES"
