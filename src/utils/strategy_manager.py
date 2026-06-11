@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from typing import Dict, Any, Optional, Tuple
+from src.strategies.btc_trend import BTCTrendStrategy
 
 class StrategyManager:
     """
@@ -8,6 +9,10 @@ class StrategyManager:
     Ensures parity between Backtester and Live Paper Trader.
     """
     
+    def __init__(self):
+        # Cache strategy instances to maintain state if needed
+        self._strategy_instances = {}
+
     @staticmethod
     def calculate_indicators(df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -26,28 +31,34 @@ class StrategyManager:
         df['rsi'] = 100 - (100 / (1 + rs))
         return df
 
-    @staticmethod
-    def check_entry_signal(strategy_id: str, df: pd.DataFrame, config: Optional[Dict[str, Any]] = None) -> Optional[str]:
+    def check_entry_signal(self, strategy_id: str, df: pd.DataFrame, config: Optional[Dict[str, Any]] = None) -> Optional[str]:
         """
         Checks for a trade entry signal at the current (last) row.
         """
         if len(df) < 200: return None
         
         row = df.iloc[-1]
+        history = df.iloc[:-1] # Data excluding the current row for consistency with class .decide()
         
         if strategy_id == "btc_trend" and config:
-            lookback = config.get('lookback_minutes', 15)
-            threshold = config.get('btc_threshold', 0.005)
+            # Use the actual class to ensure parity
+            params = {
+                'btc_threshold': config.get('btc_threshold', 0.005),
+                'lookback_minutes': config.get('lookback_minutes', 15),
+                'er_threshold': config.get('er_threshold', 0.5)
+            }
             
-            if len(df) < lookback + 1: return None
-            past_price = df.iloc[-(lookback+1)]['price']
-            current_price = row['price']
-            change = (current_price - past_price) / past_price
+            strat_key = f"btc_trend_{hash(frozenset(params.items()))}"
+            if strat_key not in self._strategy_instances:
+                self._strategy_instances[strat_key] = BTCTrendStrategy(**params)
             
-            if change > threshold: return "UP"
-            elif change < -threshold: return "DOWN"
+            # Map "YES"/"NO" from class to "UP"/"DOWN" for manager
+            decision = self._strategy_instances[strat_key].decide(row.rename({'price': 'btc_price'}), history.rename(columns={'price': 'btc_price'}))
+            if decision == "YES": return "UP"
+            elif decision == "NO": return "DOWN"
             return None
 
+        # Fallback for strategies not yet unified
         # h1_lookback: look at the EMA200 from 60 mins ago for persistence
         row_1h = df.iloc[-60] if len(df) >= 60 else df.iloc[0]
 

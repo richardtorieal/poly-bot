@@ -30,7 +30,10 @@ class Settings(BaseSettings):
     # Path to persistent state (for drawdown tracking)
     STATE_FILE: str = "logs/state.json"
     
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    # Discord Integration
+    DISCORD_TOKEN: Optional[str] = Field(None, alias="DISCORD_TOKEN")
+    
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra='ignore')
 
 def get_settings() -> Settings:
     return Settings()

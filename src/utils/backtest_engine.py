@@ -16,9 +16,10 @@ class BacktestEngine:
         trades_count = 0
         winning_trades = 0
         
-        for i in range(len(data)):
+        for i in range(len(data) - 1): # Stay one step behind to allow next-bar execution
             current_row = data.iloc[i]
-            history = data.iloc[:i]
+            next_row = data.iloc[i+1] # The bar where we actually execute
+            history = data.iloc[:i+1] # All data available up to and including current_row
             
             # 1. Update existing positions (Exits)
             new_positions = []
@@ -26,12 +27,19 @@ class BacktestEngine:
                 price_col = 'yes_price' if pos['side'] == 'YES' else 'no_price'
                 current_val = current_row[price_col]
                 
-                # Check Profit/Loss
+                # Check Profit/Loss condition at current_row
                 pnl_pct = (current_val - pos['entry_price']) / pos['entry_price']
                 
                 if pnl_pct >= config['exit_profit_pct'] or pnl_pct <= -config['stop_loss_pct']:
-                    exit_price = current_val * (1 - self.slippage)
-                    trade_revenue = pos['shares'] * exit_price
+                    # Condition met at current_row, execute with realistic sniper latency
+                    # Fill = 50% of signal price + 50% of next minute's price
+                    exit_price_signal = current_val
+                    exit_price_next = next_row[price_col]
+                    exit_price_actual = (exit_price_signal * 0.50) + (exit_price_next * 0.50)
+                    
+                    exit_price_slipped = exit_price_actual * (1 - self.slippage)
+                    
+                    trade_revenue = pos['shares'] * exit_price_slipped
                     cash += trade_revenue
                     trades_count += 1
                     if (trade_revenue > pos['capital']):
@@ -46,11 +54,14 @@ class BacktestEngine:
                 
                 if decision in ["YES", "NO"] and len(positions) == 0:
                     price_col = 'yes_price' if decision == 'YES' else 'no_price'
-                    entry_price = current_row[price_col]
+                    # Signal at current_row, execute with realistic sniper latency
+                    entry_price_signal = current_row[price_col]
+                    entry_price_next = next_row[price_col]
+                    entry_price_actual = (entry_price_signal * 0.50) + (entry_price_next * 0.50)
                     
                     # Prevent buying at dust prices or near-certainties
-                    if 0.05 < entry_price < 0.95:
-                        entry_price_slipped = entry_price * (1 + self.slippage)
+                    if 0.05 < entry_price_actual < 0.95:
+                        entry_price_slipped = entry_price_actual * (1 + self.slippage)
                         risk_amount = cash * config['pos_size_pct']
                         shares = risk_amount / entry_price_slipped
                         positions.append({
@@ -60,12 +71,13 @@ class BacktestEngine:
                             'capital': risk_amount
                         })
                         cash -= risk_amount
+                        logger.debug(f"Entry executed at {next_row.name if hasattr(next_row, 'name') else i+1}")
 
-            # 3. Track Equity
+            # 3. Track Equity (using next_row to reflect state AFTER trades)
             unrealized = 0
             for pos in positions:
                 price_col = 'yes_price' if pos['side'] == 'YES' else 'no_price'
-                unrealized += pos['shares'] * current_row[price_col]
+                unrealized += pos['shares'] * next_row[price_col]
             
             equity_curve.append(cash + unrealized)
 
