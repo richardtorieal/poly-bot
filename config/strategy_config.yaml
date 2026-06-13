@@ -5,8 +5,8 @@ strategy:
     lookback_minutes: 6
     er_threshold: 0.9
     pos_size_pct: 0.085
-    exit_profit_pct: 0.048
-    stop_loss_pct: 0.015
+    exit_profit_pct: 0.050
+    stop_loss_pct: 0.012
 
 backtest:
   initial_capital: 1000.0
