@@ -17,7 +17,7 @@ class PaperTradeAudit:
     """
     Industry-grade Paper Trader with Real-time CLOB simulation via WebSocket.
     """
-    def __init__(self, ledger_path="logs/paper_ledger.json"):
+    def __init__(self, ledger_path="logs/paper_ledger.json", strategy_id=None):
         self.active_signals = [] # List of tracked positions
         self.btc_buffer = [] 
         self.ledger_path = ledger_path
@@ -36,10 +36,20 @@ class PaperTradeAudit:
         self._load_ledger()
         self.bet_size = 50.0
         
-        self.strategies = {
+        all_strategies = {
             "btc_trend": {"name": "BTC Trend (Optimized)", "interval": 15, "thread_id": "1514487790623133790", "desc": "Lead-Lag Trend"},
-            "sniper_v3": {"name": "Sniper V3", "interval": 15, "thread_id": "1514487790623133790", "desc": "15m Dual Confluence"}
+            "sniper_v3": {"name": "Sniper V3", "interval": 15, "thread_id": "1514487790623133790", "desc": "15m Dual Confluence"},
+            "scalper_v1": {"name": "Scalper V1", "interval": 5, "thread_id": "1514487790623133790", "desc": "5m Trend Pullback"}
         }
+
+        if strategy_id:
+            if strategy_id not in all_strategies:
+                raise ValueError(f"Unknown strategy: {strategy_id}")
+            self.strategies = {strategy_id: all_strategies[strategy_id]}
+            logger.info(f"Running isolated process for strategy: {strategy_id}")
+        else:
+            self.strategies = all_strategies
+            logger.info("Running unified process with all strategies")
         
         # Load optimized parameters
         import yaml
@@ -239,12 +249,18 @@ class PaperTradeAudit:
                     exit_eval = self.manager.evaluate_exit(s, curr_bid, time_left)
                     
                     if exit_eval['action'] == "EXIT_FULL":
-                        pnl = (s['shares'] * curr_bid) - self.bet_size
-                        self.balance += (s['shares'] * curr_bid)
+                        total_exit_value = s['shares'] * curr_bid
+                        # PnL is (Total Cash Out) - (Total Cash In for these shares)
+                        # When selling FULL, cash in is either bet_size (if no scale out) or bet_size/2 (if already scaled out)
+                        initial_cost = 50.0 if not s['has_scaled_out'] else 25.0
+                        pnl = total_exit_value - initial_cost
+                        self.balance += total_exit_value
+                        
                         msg = (f"⚡ **EARLY EXIT ({exit_eval['reason']})**\n"
                                f"• **Trade ID:** `{s['trade_id']}`\n"
                                f"• **Realized ROI:** {exit_eval['roi']:.2%}\n"
-                               f"• **PnL:** ${pnl:+.2f}")
+                               f"• **PnL:** ${pnl:+.2f}\n"
+                               f"• **Account Balance:** ${self.balance:.2f}")
                         await self._alert_discord(msg, self.strategies[s['strat']]['thread_id'])
                         resolved.append(s)
                         self._save_ledger()
@@ -252,14 +268,18 @@ class PaperTradeAudit:
                     elif exit_eval['action'] == "EXIT_HALF":
                         # Scale out 50%
                         half_shares = s['shares'] / 2
-                        pnl = (half_shares * curr_bid) - (self.bet_size / 2)
-                        self.balance += (half_shares * curr_bid)
+                        exit_value = half_shares * curr_bid
+                        initial_cost = 25.0 # 50% of original bet
+                        pnl = exit_value - initial_cost
+                        self.balance += exit_value
                         s['shares'] -= half_shares
                         s['has_scaled_out'] = True
+                        
                         msg = (f"✂️ **SCALING OUT (1/2)**\n"
                                f"• **Trade ID:** `{s['trade_id']}`\n"
                                f"• **ROI:** {exit_eval['roi']:.2%}\n"
-                               f"• **Locked PnL:** ${pnl:+.2f}")
+                               f"• **Locked PnL:** ${pnl:+.2f}\n"
+                               f"• **Account Balance:** ${self.balance:.2f}")
                         await self._alert_discord(msg, self.strategies[s['strat']]['thread_id'])
                         self._save_ledger()
                     
@@ -268,11 +288,15 @@ class PaperTradeAudit:
                     # FINAL EXPIRY RESOLUTION
                     if now >= s['resolve_t'] and s not in resolved:
                         win = (s['entry_price'] > 0.5) # Simplified for paper resolve
-                        # In real life, check BTC price vs entry BTC
                         final_val = s['shares'] * 1.0 if win else 0.0
-                        pnl = final_val - (self.bet_size / 2 if s['has_scaled_out'] else self.bet_size)
+                        initial_cost = 50.0 if not s['has_scaled_out'] else 25.0
+                        pnl = final_val - initial_cost
                         self.balance += final_val
-                        msg = f"🏁 **EXPIRED**\n• **Trade ID:** `{s['trade_id']}`\n• **Final PnL:** ${pnl:+.2f}"
+                        
+                        msg = (f"🏁 **EXPIRED**\n"
+                               f"• **Trade ID:** `{s['trade_id']}`\n"
+                               f"• **Final PnL:** ${pnl:+.2f}\n"
+                               f"• **Account Balance:** ${self.balance:.2f}")
                         await self._alert_discord(msg, self.strategies[s['strat']]['thread_id'])
                         resolved.append(s)
                         self._save_ledger()
@@ -284,5 +308,12 @@ class PaperTradeAudit:
                 logger.error(f"Loop Error: {e}"); await asyncio.sleep(10)
 
 if __name__ == "__main__":
-    audit = PaperTradeAudit()
+    import argparse
+    parser = argparse.ArgumentParser(description="Poly-Bot Paper Trader")
+    parser.add_argument("--strategy", type=str, help="Strategy ID to run (e.g. btc_trend, sniper_v3, scalper_v1)")
+    parser.add_argument("--ledger", type=str, help="Path to ledger JSON file")
+    args = parser.parse_args()
+
+    ledger_path = args.ledger if args.ledger else "logs/paper_ledger.json"
+    audit = PaperTradeAudit(ledger_path=ledger_path, strategy_id=args.strategy)
     asyncio.run(audit.run_loop())
