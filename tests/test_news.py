@@ -30,6 +30,8 @@ async def test_news_client_fetch(mock_setup):
     assert news[0]["title"] == "Bitcoin is mooning"
     await client.close()
 
+from unittest.mock import AsyncMock, patch
+
 @pytest.mark.asyncio
 @respx.mock
 async def test_news_trigger_match(mock_setup):
@@ -46,16 +48,8 @@ async def test_news_trigger_match(mock_setup):
     
     strategy = NewsTriggerStrategy(client, safety, news_client)
     # run iteration once
-    await strategy.run_iteration()
-    
-    # Check if PnL was recorded (should be 2 times: "bitcoin" and "etf")
-    # Actually my keywords were "bitcoin", "etf", "fed"
-    # "New bitcoin ETF approved" matches both "bitcoin" and "etf"
-    # But wait, the loop for keywords: for keyword in title...
-    # It would trigger twice for the same article? 
-    # Let's check my logic in news_trigger.py
-    # for keyword, config in self.trigger_keywords.items(): if keyword in title: logger.warning...
-    # Yes, it would trigger twice.
+    with patch("asyncio.sleep", new_callable=AsyncMock):
+        await strategy.run_iteration()
     
     state = safety._get_state()
     assert state["daily_pnl"] >= 1.0 # At least one trigger

@@ -1,11 +1,11 @@
 import pytest
-from src.utils.logger import log
+from src.utils.logger import logger
 from src.utils.config import settings
 from src.strategies.base_strategy import BaseStrategy
 
 def test_logger_init():
-    log.info("Testing logger initialization")
-    assert log is not None
+    logger.info("Testing logger initialization")
+    assert logger is not None
 
 def test_config_defaults():
     assert settings.max_daily_loss == 5.0

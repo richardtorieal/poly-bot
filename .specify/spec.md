@@ -44,3 +44,18 @@ The **Poly-Bot** is an autonomous high-frequency trading system designed to oper
 4. **Phase 4: Validation**
    - 48-hour Paper Trading run.
    - Live deployment with $100 seed capital.
+
+## 6. Auto-Tuning Dashboard Specification
+- **Framework**: Next.js 15 (App Router) using TypeScript for complete type safety.
+- **Aesthetics**: Premium "Deep Space" dark mode (`#0a0b0d` background) with neon glows, glassmorphism, and responsive CSS.
+- **Key Visualizations & Analytics**:
+  - **KPI Grid**: 5 columns displaying:
+    - Total PnL (with percentage/dollar change and success/danger highlights).
+    - Win Rate percentage.
+    - Total Trades executed.
+    - Max Drawdown percentage.
+    - Sharpe Ratio (estimated/calculated).
+  - **Equity Curve Card**: Full-width area chart displaying account balance progression over time.
+  - **Correlation View**: Dual-line chart showing the correlation between BTC price movement and Yes/No Polymarket contract prices.
+  - **Trade Ledger**: Interactive table showing historical trade details, signals, actual outcomes, and results.
+- **Data Loaders**: Auto-loading CSV data from local path (`real_sniper_30d_audit.csv` and `btc_high_res_correlated_30d.csv`) during server-side render.
