@@ -18,6 +18,7 @@ The **Poly-Bot** is an autonomous high-frequency trading system designed to oper
    - **Scalper (5m)**: Uses tight RSI (30/70) and EMA confluence to capture micro-pullbacks.
    - **Sniper (15m)**: Uses dual EMA confluence (9/21) and RSI momentum to enter established short-term trends.
    - **Execution**: Must account for real-time CLOB liquidity and slippage.
+   - **BTCTrendStrategy Parameters**: Optimizes lookback window (2m), ER threshold (0.903), and profit targets to maximize Sharpe and manage drawdown.
 
 4. **Maker Rebate Farming**:
    - Maintains tight bid-ask spreads to capture USDC rebates.
