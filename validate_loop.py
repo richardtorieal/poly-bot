@@ -19,6 +19,8 @@ def run_experiment():
         return
 
     df = pd.read_csv(data_path)
+    df['yes_price'] = df['yes_price'].ffill()
+    df['no_price'] = df['no_price'].ffill()
     
     # IS/OOS Split
     split_idx = int(len(df) * config['backtest']['is_oos_split'])
