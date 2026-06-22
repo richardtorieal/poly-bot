@@ -4,9 +4,9 @@ strategy:
     btc_threshold: 0.00025
     lookback_minutes: 2
     er_threshold: 0.529
-    pos_size_pct: 0.07
-    exit_profit_pct: 0.0053
-    stop_loss_pct: 0.006
+    pos_size_pct: 0.06
+    exit_profit_pct: 0.005
+    stop_loss_pct: 0.0065
 
 
 backtest:
