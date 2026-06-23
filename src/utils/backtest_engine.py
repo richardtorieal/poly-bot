@@ -19,7 +19,9 @@ class BacktestEngine:
         for i in range(len(data) - 1): # Stay one step behind to allow next-bar execution
             current_row = data.iloc[i]
             next_row = data.iloc[i+1] # The bar where we actually execute
-            history = data.iloc[:i+1] # All data available up to and including current_row
+            # Limit history slice to the last 250 rows to prevent O(N^2) performance slowdown.
+            # BTCTrendStrategy only uses a lookback of a few minutes, so 250 rows is more than sufficient.
+            history = data.iloc[max(0, i - 250) : i + 1] # All data available up to and including current_row
             
             # 1. Update existing positions (Exits)
             new_positions = []

@@ -2091,3 +2091,69 @@
       MaxDD: -6.23%
     ---------------------------------------------------
     
+    DATE: 2026-06-22 23:39:41
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.00025, 'lookback_minutes': 2, 'er_threshold': 0.4, 'pos_size_pct': 0.05, 'exit_profit_pct': 0.005, 'stop_loss_pct': 0.0065}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 4391717312983967203328.00%
+      Win Rate: 77.5%
+      Sharpe: 144.74
+      Trades: 5980
+
+    IN-SAMPLE (IS):
+      PnL%: 605764961402676736.00%
+      Win Rate: 78.1%
+      Sharpe: 146.30
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 729251.75%
+      Win Rate: 75.6%
+      Sharpe: 138.88
+      MaxDD: -6.23%
+    ---------------------------------------------------
+    
+    DATE: 2026-06-22 23:42:31
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.00025, 'lookback_minutes': 2, 'er_threshold': 0.4, 'pos_size_pct': 0.05, 'exit_profit_pct': 0.005, 'stop_loss_pct': 0.0065}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 4391717312983967203328.00%
+      Win Rate: 77.5%
+      Sharpe: 144.74
+      Trades: 5980
+
+    IN-SAMPLE (IS):
+      PnL%: 605764961402676736.00%
+      Win Rate: 78.1%
+      Sharpe: 146.30
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 729251.75%
+      Win Rate: 75.6%
+      Sharpe: 138.88
+      MaxDD: -6.23%
+    ---------------------------------------------------
+    
+    DATE: 2026-06-22 23:45:16
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.00025, 'lookback_minutes': 2, 'er_threshold': 0.4, 'pos_size_pct': 0.04, 'exit_profit_pct': 0.005, 'stop_loss_pct': 0.0065}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 611432620873813376.00%
+      Win Rate: 77.5%
+      Sharpe: 144.69
+      Trades: 5980
+
+    IN-SAMPLE (IS):
+      PnL%: 481795854980566.81%
+      Win Rate: 78.1%
+      Sharpe: 146.19
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 127417.77%
+      Win Rate: 75.6%
+      Sharpe: 139.03
+      MaxDD: -5.01%
+    ---------------------------------------------------
+    
