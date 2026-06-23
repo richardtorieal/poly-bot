@@ -14,12 +14,28 @@ class BTCTrendStrategy(BaseStrategy):
     Simple Lead-Lag strategy: If BTC moves more than X% in Y minutes, 
     bet on Polymarket catching up.
     """
-    def __init__(self, btc_threshold: float = 0.0005, lookback_minutes: int = 5, er_threshold: float = 0.5):
+    def __init__(self, btc_threshold: float = 0.0005, lookback_minutes: int = 5, er_threshold: float = 0.5, max_minutes_elapsed: float = 999.0):
         self.btc_threshold = btc_threshold
         self.lookback_minutes = lookback_minutes
         self.er_threshold = er_threshold
+        self.max_minutes_elapsed = max_minutes_elapsed
 
     def decide(self, current_data: pd.Series, history: pd.DataFrame) -> str:
+        # Determine timestamp and check if within prediction window filter
+        if 'timestamp' in current_data:
+            ts = current_data['timestamp']
+        elif hasattr(current_data.name, 'timestamp'):
+            ts = current_data.name.timestamp()
+        else:
+            ts = float(current_data.name)
+            
+        ts_int = int(ts)
+        window_start = (ts_int // 900) * 900
+        elapsed_min = (ts_int - window_start) / 60.0
+        
+        if elapsed_min > self.max_minutes_elapsed:
+            return "HOLD"
+
         if len(history) < self.lookback_minutes:
             return "HOLD"
             

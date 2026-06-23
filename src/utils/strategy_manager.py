@@ -45,7 +45,8 @@ class StrategyManager:
             params = {
                 'btc_threshold': config.get('btc_threshold', 0.005),
                 'lookback_minutes': config.get('lookback_minutes', 15),
-                'er_threshold': config.get('er_threshold', 0.5)
+                'er_threshold': config.get('er_threshold', 0.5),
+                'max_minutes_elapsed': config.get('max_minutes_elapsed', 999.0)
             }
             
             strat_key = f"btc_trend_{hash(frozenset(params.items()))}"

@@ -33,5 +33,5 @@
 ## Phase 6: Rigorous Backtesting & Tuning 📊
 - [x] Implement `BacktestEngine` with parameter sweep auto-tuning @test-engineer
 - [x] Implement Historical Data Downloader (Gamma API + CLOB API) @test-engineer
-- [x] Implement `optimize` CLI command for live margin tuning @test-engineer (Last run: 2026-06-22, Optimal OOS Sharpe: 139.03, MaxDD: -5.01% with BTCTrendStrategy btc_threshold: 0.00025, lookback_minutes: 2, er_threshold: 0.4, pos_size_pct: 0.04, exit_profit_pct: 0.005, stop_loss_pct: 0.0065) # Optimization successfully completed on 2026-06-22
+- [x] Implement `optimize` CLI command for live margin tuning @test-engineer (Last run: 2026-06-23, Optimal OOS Sharpe: 164.47, MaxDD: -3.25% with BTCTrendStrategy btc_threshold: 0.00015, lookback_minutes: 2, er_threshold: 0.5, pos_size_pct: 0.03, exit_profit_pct: 0.005, stop_loss_pct: 0.011, max_minutes_elapsed: 8.0) # Optimization successfully completed on 2026-06-23
 - [ ] Create Auto-Tuning dashboard @test-engineer
