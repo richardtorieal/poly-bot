@@ -18,7 +18,7 @@ The **Poly-Bot** is an autonomous high-frequency trading system designed to oper
    - **Scalper (5m)**: Uses tight RSI (30/70) and EMA confluence to capture micro-pullbacks.
    - **Sniper (15m)**: Uses dual EMA confluence (9/21) and RSI momentum to enter established short-term trends.
    - **Execution**: Must account for real-time CLOB liquidity and slippage.
-   - **BTCTrendStrategy Parameters**: Optimizes lookback window (2m), ER threshold (0.5), position size (3%), exit profit (0.5%), stop loss (1.5%), and a time-elapsed prediction window filter (max_minutes_elapsed = 8.0) to maximize Sharpe (OOS 165.27) and reduce drawdown (OOS -3.25%).
+   - **BTCTrendStrategy Parameters**: Optimizes lookback window (2m), ER threshold (0.5), position size (3%), exit profit (0.55%), stop loss (1.5%), asymmetric trend triggers (btc_threshold_up = 0.00018, btc_threshold_down = 0.00010), and a time-elapsed prediction window filter (max_minutes_elapsed = 8.0) to maximize Sharpe (OOS 167.06) and reduce drawdown (OOS -3.25%).
 
 4. **Maker Rebate Farming**:
    - Maintains tight bid-ask spreads to capture USDC rebates.

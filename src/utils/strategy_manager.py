@@ -44,14 +44,20 @@ class StrategyManager:
             # Use the actual class to ensure parity
             params = {
                 'btc_threshold': config.get('btc_threshold', 0.005),
+                'btc_threshold_up': config.get('btc_threshold_up'),
+                'btc_threshold_down': config.get('btc_threshold_down'),
                 'lookback_minutes': config.get('lookback_minutes', 15),
                 'er_threshold': config.get('er_threshold', 0.5),
                 'max_minutes_elapsed': config.get('max_minutes_elapsed', 999.0)
             }
             
-            strat_key = f"btc_trend_{hash(frozenset(params.items()))}"
+            # Since some values might be None, filter them out before hashing/instantiation
+            # to fall back to the class defaults correctly
+            params_filtered = {k: v for k, v in params.items() if v is not None}
+            
+            strat_key = f"btc_trend_{hash(frozenset(params_filtered.items()))}"
             if strat_key not in self._strategy_instances:
-                self._strategy_instances[strat_key] = BTCTrendStrategy(**params)
+                self._strategy_instances[strat_key] = BTCTrendStrategy(**params_filtered)
             
             # Map "YES"/"NO" from class to "UP"/"DOWN" for manager
             decision = self._strategy_instances[strat_key].decide(row.rename({'price': 'btc_price'}), history.rename(columns={'price': 'btc_price'}))
