@@ -42,7 +42,8 @@ def run_experiment():
         btc_threshold_down=config['strategy']['parameters'].get('btc_threshold_down'),
         lookback_minutes=config['strategy']['parameters']['lookback_minutes'],
         er_threshold=config['strategy']['parameters'].get('er_threshold', 0.5),
-        max_minutes_elapsed=config['strategy']['parameters'].get('max_minutes_elapsed', 999.0)
+        max_minutes_elapsed=config['strategy']['parameters'].get('max_minutes_elapsed', 999.0),
+        filter_strike_trend=config['strategy']['parameters'].get('filter_strike_trend', True)
     )
 
     # 1. Run In-Sample

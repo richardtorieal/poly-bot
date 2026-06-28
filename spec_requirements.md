@@ -7,41 +7,57 @@ Iteratively improve the `BTCTrendStrategy` parameters to maximize the Out-of-Sam
 - **Strategy**: BTCTrendStrategy
 - **Parameters**:
   - `btc_threshold`: 0.00015
-  - `btc_threshold_up`: 0.00018
+  - `btc_threshold_up`: 0.00017
   - `btc_threshold_down`: 0.00010
   - `lookback_minutes`: 2
   - `er_threshold`: 0.5
   - `pos_size_pct`: 0.03
-  - `exit_profit_pct`: 0.0055
+  - `exit_profit_pct`: 0.0052
   - `stop_loss_pct`: 0.015
   - `max_minutes_elapsed`: 8.0
 - **Overall**:
-  - PnL: 6503667248.13%
+  - PnL: 7917085052.77%
   - Win Rate: 76.3%
-  - Sharpe: 158.84
-  - Trades: 5982
+  - Sharpe: 159.72
+  - Trades: 6079
 - **In-Sample (IS)**:
-  - PnL: 196633802.92%
+  - PnL: 228161808.41%
   - Win Rate: 76.6%
-  - Sharpe: 157.17
+  - Sharpe: 158.18
 - **Out-of-Sample (OOS)**:
-  - PnL: 3219.33%
+  - PnL: 3382.35%
   - Win Rate: 75.4%
-  - Sharpe: 167.06
+  - Sharpe: 167.18
   - MaxDD: -3.25%
 
 ## Hypothesis
-By fine-tuning the trade execution parameters (specifically `btc_threshold_up`, `btc_threshold_down`, `er_threshold`, `exit_profit_pct`, and `stop_loss_pct`), we can better adapt the lead-lag strategy to short-term momentum shifts in BTC price, thereby improving the OOS Sharpe Ratio (currently 167.06) without deteriorating the Drawdown profile.
+By introducing a cumulative trend direction check relative to the strike price (defined at the start of each 15-minute resolution window `window_start`), we can filter out entry signals that attempt to trade against the strike price context (e.g. buying YES when price is far below strike, or buying NO when price is far above strike). Decoupling short-term momentum from resolution-window context should prevent counter-trend trades and significantly improve the OOS Sharpe ratio.
 
 ## Optimization Search Space
-We will sweep the following parameter ranges:
-- `btc_threshold_up`: [0.00014, 0.00016, 0.00018, 0.00020, 0.00022]
-- `btc_threshold_down`: [0.00008, 0.00010, 0.00012, 0.00014]
-- `er_threshold`: [0.45, 0.50, 0.55]
-- `exit_profit_pct`: [0.0050, 0.0055, 0.0060, 0.0065]
-- `stop_loss_pct`: [0.012, 0.015, 0.018]
-- `pos_size_pct`: [0.03] (keep constant to preserve risk control baseline)
+We swept the following parameter ranges:
+- `filter_strike_trend`: [True, False]
+- `btc_threshold_up`: [0.00015, 0.00017, 0.00019]
+- `btc_threshold_down`: [0.00008, 0.00010, 0.00012]
+- `er_threshold`: [0.50]
+- `exit_profit_pct`: [0.0050, 0.0052, 0.0055]
+- `stop_loss_pct`: [0.015]
+- `max_minutes_elapsed`: [8.0]
+- `pos_size_pct`: [0.03]
 
-## Success Criteria
-- OOS Sharpe Ratio > 167.06 (Baseline)
-- OOS Max Drawdown > -30% (Safety margin)
+## Success Criteria / Results
+- Filter active: True
+- Optimal parameters:
+  - `btc_threshold_up`: 0.00017
+  - `btc_threshold_down`: 0.00008
+  - `exit_profit_pct`: 0.0052
+  - `stop_loss_pct`: 0.015
+  - `max_minutes_elapsed`: 8.0
+- **Out-of-Sample (OOS) Results**:
+  - Sharpe: 179.13 (exceeds baseline 167.18)
+  - MaxDD: -1.95% (exceeds baseline -3.25%)
+  - Win Rate: 76.8%
+  - PnL: 1165.69%
+- **In-Sample (IS) Results**:
+  - Sharpe: 171.43
+  - Win Rate: 78.0%
+

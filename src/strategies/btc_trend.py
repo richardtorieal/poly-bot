@@ -14,13 +14,14 @@ class BTCTrendStrategy(BaseStrategy):
     Simple Lead-Lag strategy: If BTC moves more than X% in Y minutes, 
     bet on Polymarket catching up.
     """
-    def __init__(self, btc_threshold: float = 0.0005, lookback_minutes: int = 5, er_threshold: float = 0.5, max_minutes_elapsed: float = 999.0, btc_threshold_up: float = None, btc_threshold_down: float = None):
+    def __init__(self, btc_threshold: float = 0.0005, lookback_minutes: int = 5, er_threshold: float = 0.5, max_minutes_elapsed: float = 999.0, btc_threshold_up: float = None, btc_threshold_down: float = None, filter_strike_trend: bool = True):
         self.btc_threshold = btc_threshold
         self.btc_threshold_up = btc_threshold_up if btc_threshold_up is not None else btc_threshold
         self.btc_threshold_down = btc_threshold_down if btc_threshold_down is not None else btc_threshold
         self.lookback_minutes = lookback_minutes
         self.er_threshold = er_threshold
         self.max_minutes_elapsed = max_minutes_elapsed
+        self.filter_strike_trend = filter_strike_trend
 
     def decide(self, current_data: pd.Series, history: pd.DataFrame) -> str:
         # Determine timestamp and check if within prediction window filter
@@ -60,6 +61,17 @@ class BTCTrendStrategy(BaseStrategy):
         # Only enter if the trend is "efficient"
         if er < self.er_threshold:
             return "HOLD"
+        
+        # Filter by cumulative trend since the start of the 15-minute resolution window
+        if self.filter_strike_trend and 'timestamp' in history.columns:
+            window_start_row = history[history['timestamp'] == window_start]
+            if not window_start_row.empty:
+                strike_price = window_start_row.iloc[0]['btc_price']
+                window_change = (current_btc - strike_price) / strike_price
+                if change > 0 and window_change <= 0:
+                    return "HOLD"
+                if change < 0 and window_change >= 0:
+                    return "HOLD"
         
         if change > self.btc_threshold_up:
             return "YES"
