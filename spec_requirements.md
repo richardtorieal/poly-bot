@@ -47,21 +47,20 @@ We swept the following parameter ranges:
 
 ## Success Criteria / Results
 - Filter active: True
-- Optimal parameters (Trial 73):
-  - `btc_threshold_up`: 0.000166
-  - `btc_threshold_down`: 0.000080
+- Optimal parameters (Trial 143):
+  - `btc_threshold_up`: 0.000164
+  - `btc_threshold_down`: 0.000071
   - `lookback_minutes`: 2
-  - `er_threshold`: 0.4804
-  - `exit_profit_pct`: 0.005790
-  - `stop_loss_pct`: 0.013011
-  - `max_minutes_elapsed`: 9.4246
+  - `er_threshold`: 0.4467
+  - `exit_profit_pct`: 0.004936
+  - `stop_loss_pct`: 0.012178
+  - `max_minutes_elapsed`: 9.5924
 - **Out-of-Sample (OOS) Results**:
-  - Sharpe: 182.92 (exceeds baseline 179.13)
+  - Sharpe: 183.33 (exceeds baseline 182.63)
   - MaxDD: -1.95% (matches baseline -1.95%)
-  - PnL: 1409.91% (exceeds baseline 1165.69%)
-  - Trades: 914
+  - PnL: 1425.43% (exceeds baseline 1399.75%)
 - **In-Sample (IS) Results**:
-  - Sharpe: 176.96 (exceeds baseline 171.43)
-  - PnL: 3530728.89% (exceeds baseline 1326178.10%)
+  - Sharpe: 177.25 (exceeds baseline 176.83)
+  - PnL: 3671190.25% (exceeds baseline 3498144.52%)
 
 
