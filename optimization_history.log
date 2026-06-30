@@ -2509,3 +2509,69 @@
       MaxDD: -1.95%
     ---------------------------------------------------
     
+    DATE: 2026-06-30 06:02:10
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.000164, 'btc_threshold_up': 0.000164, 'btc_threshold_down': 7.1e-05, 'lookback_minutes': 2, 'er_threshold': 0.4467, 'pos_size_pct': 0.03, 'exit_profit_pct': 0.004936, 'stop_loss_pct': 0.012178, 'max_minutes_elapsed': 9.5924, 'filter_strike_trend': True}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 55801550.22%
+      Win Rate: 82.8%
+      Sharpe: 178.38
+      Trades: 4443
+
+    IN-SAMPLE (IS):
+      PnL%: 3671190.25%
+      Win Rate: 82.5%
+      Sharpe: 177.25
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 1425.43%
+      Win Rate: 83.7%
+      Sharpe: 183.33
+      MaxDD: -1.95%
+    ---------------------------------------------------
+    
+    DATE: 2026-06-30 06:02:24
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.000164, 'btc_threshold_up': 0.000164, 'btc_threshold_down': 7.1e-05, 'lookback_minutes': 2, 'er_threshold': 0.4467, 'pos_size_pct': 0.03, 'exit_profit_pct': 0.004936, 'stop_loss_pct': 0.012178, 'max_minutes_elapsed': 9.5924, 'filter_strike_trend': True}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 55801550.22%
+      Win Rate: 82.8%
+      Sharpe: 178.38
+      Trades: 4443
+
+    IN-SAMPLE (IS):
+      PnL%: 3671190.25%
+      Win Rate: 82.5%
+      Sharpe: 177.25
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 1425.43%
+      Win Rate: 83.7%
+      Sharpe: 183.33
+      MaxDD: -1.95%
+    ---------------------------------------------------
+    
+    DATE: 2026-06-30 06:05:13
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 5.6e-05, 'btc_threshold_up': 5.6e-05, 'btc_threshold_down': 5.5e-05, 'lookback_minutes': 2, 'er_threshold': 0.6755, 'pos_size_pct': 0.03, 'exit_profit_pct': 0.004686, 'stop_loss_pct': 0.007602, 'max_minutes_elapsed': 10.7445, 'filter_strike_trend': True}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 504099944.75%
+      Win Rate: 81.0%
+      Sharpe: 187.78
+      Trades: 5540
+
+    IN-SAMPLE (IS):
+      PnL%: 23649627.43%
+      Win Rate: 80.8%
+      Sharpe: 188.53
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 2039.21%
+      Win Rate: 82.2%
+      Sharpe: 185.18
+      MaxDD: -2.40%
+    ---------------------------------------------------
+    
