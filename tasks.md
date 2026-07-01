@@ -39,3 +39,9 @@
 ## Phase 7: Strategy Process Isolation 🛡️
 - [x] Isolate strategies into independent PM2 processes with separate pots of money starting at $1,000.00 @test-engineer
 
+## Emergency Reversion & Quant Mandate Update (2026-07-01) 🚨
+- [x] Revert BTCTrendStrategy parameters in `config/strategy_config.yaml` to the June 30 baseline parameters to halt bleeding @quant-dev
+- [x] Add OOS overfitting protection, symmetry constraints, and minimum parameter boundaries to the autonomous quant optimization prompt in `discord-bridge/jobs.json` @quant-dev
+- [x] Restart PM2 process `poly-bot-btc-trend` live to apply reverted settings @quant-dev
+
+

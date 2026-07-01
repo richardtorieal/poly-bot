@@ -70,3 +70,12 @@ We swept the following parameter ranges:
   - `poly-bot-scalper` (runs `paper_trade_audit.py --strategy scalper_v1 --ledger logs/ledger_scalper_v1.json`)
 - **Ledger Inits:** Create initial ledger files under `logs/` directory.
 
+## Emergency Reversion & Quant Mandate Update (2026-07-01)
+- **Problem:** Post-optimization parameters from July 1st overfit to recent upward trends, leading to asymmetric thresholds, microscopic entry requirements, and rapid loss of capital on range-bound/downward movement.
+- **Action 1:** Revert `config/strategy_config.yaml` to the June 30 baseline parameters (Symmetric thresholds of `0.000056`/`0.000055`, `er_threshold` of `0.6755`, and wider exit/stop-loss).
+- **Action 2:** Update the autonomous quant optimization prompt in `/Users/richardanderson/projects/discord-bridge/jobs.json` to prevent OOS overfitting and enforce symmetry constraints:
+  - Enforce symmetric/near-symmetric triggers (`btc_threshold_up` and `btc_threshold_down` must be within 10% of each other).
+  - Enforce minimum threshold limits (`btc_threshold_up` >= `0.00005`, `er_threshold` >= `0.5`).
+  - Enforce optimization on In-Sample (IS) metrics, using Out-of-Sample (OOS) strictly for passive validation (to prevent selection bias/overfitting on OOS).
+
+
