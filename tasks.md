@@ -33,5 +33,9 @@
 ## Phase 6: Rigorous Backtesting & Tuning 📊
 - [x] Implement `BacktestEngine` with parameter sweep auto-tuning @test-engineer
 - [x] Implement Historical Data Downloader (Gamma API + CLOB API) @test-engineer
-- [x] Implement `optimize` CLI command for live margin tuning @test-engineer (Last run: 2026-06-30, Optimal OOS Sharpe: 185.18, MaxDD: -2.40% with BTCTrendStrategy btc_threshold_up: 0.000056, btc_threshold_down: 0.000055, lookback_minutes: 2, er_threshold: 0.6755, pos_size_pct: 0.03, exit_profit_pct: 0.004686, stop_loss_pct: 0.007602, max_minutes_elapsed: 10.7445, filter_strike_trend: true) # Optimization successfully completed on 2026-06-30
+- [x] Implement `optimize` CLI command for live margin tuning @test-engineer (Last run: 2026-07-01, Optimal OOS Sharpe: 185.76, MaxDD: -2.79% with BTCTrendStrategy btc_threshold_up: 2.5186e-05, btc_threshold_down: 9.3535e-05, lookback_minutes: 2, er_threshold: 0.3841, pos_size_pct: 0.0430, exit_profit_pct: 0.00190, stop_loss_pct: 0.00478, max_minutes_elapsed: 9.209, filter_strike_trend: true) # Optimization successfully completed on 2026-07-01
 - [ ] Create Auto-Tuning dashboard @test-engineer
+
+## Phase 7: Strategy Process Isolation 🛡️
+- [x] Isolate strategies into independent PM2 processes with separate pots of money starting at $1,000.00 @test-engineer
+

@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     """
     Application settings and environment variable validation.
     """
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra='ignore')
 
     # Polymarket V3 Credentials
     poly_key_id: Optional[str] = Field(None, alias="POLYMARKET_KEY_ID")

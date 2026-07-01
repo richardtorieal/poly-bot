@@ -1,5 +1,5 @@
 from polymarket import AsyncPublicClient
-from src.utils.logger import log
+from src.utils.logger import logger
 from src.utils.config import settings
 
 class PolyClient:
@@ -10,12 +10,12 @@ class PolyClient:
     def __init__(self):
         self.client = None
         self.is_authenticated = False
-        log.info("PolyClient wrapper initialized")
+        logger.info("PolyClient wrapper initialized")
 
     async def connect(self):
         """Initializes the async public client."""
         self.client = AsyncPublicClient()
-        log.info("Connected to Polymarket Gamma API")
+        logger.info("Connected to Polymarket Gamma API")
 
     async def get_market_price(self, market_url: str) -> float:
         """Fetches the current price for a specific market."""
@@ -24,10 +24,10 @@ class PolyClient:
         
         try:
             market = await self.client.get_market(url=market_url)
-            log.debug(f"Fetched price for {market.question}: {market.price}")
+            logger.debug(f"Fetched price for {market.question}: {market.price}")
             return float(market.price)
         except Exception as e:
-            log.error(f"Failed to fetch market price for {market_url}: {e}")
+            logger.error(f"Failed to fetch market price for {market_url}: {e}")
             return 0.0
 
     async def disconnect(self):

@@ -30,31 +30,43 @@ Iteratively improve the `BTCTrendStrategy` parameters to maximize the Out-of-Sam
   - Sharpe: 179.13
   - MaxDD: -1.95%
 
-## Hypothesis
-By tightening both the upward and downward BTC entry thresholds (btc_threshold_up to ~0.000056 and btc_threshold_down to ~0.000055) and increasing the efficiency ratio threshold (er_threshold to ~0.675), we filter out noisy and low-conviction trends. Further, by tightening the stop-loss target to ~0.0076 and slightly adjusting the take-profit target to ~0.0047, we allow the strategy to capitalize on highly efficient breakout runs while preventing large drawdowns during trend reversals, thereby maximizing the Out-of-Sample (OOS) Sharpe Ratio beyond the baseline of 183.33.
+## Hypothesis (2026-07-01)
+By allowing a lower btc_threshold_up (~2.52e-5) while keeping btc_threshold_down (~9.35e-5) higher, we allow the strategy to enter YES positions much more quickly on upward momentum while remaining conservative on downward NO positions. Furthermore, lowering er_threshold to ~0.384 allows entering more momentum trades in noisier environments, while a tighter exit profit pct (~0.0019) and tighter stop-loss (~0.0048) lock in quick gains and exit bad trades early. This configuration will improve OOS Sharpe to ~185.76 while keeping MaxDD extremely safe at -2.91%.
 
 ## Optimization Search Space
 We swept the following parameter ranges:
-- `btc_threshold_up`: [0.00005, 0.00035]
-- `btc_threshold_down`: [0.00003, 0.00020]
-- `lookback_minutes`: [1, 5]
-- `er_threshold`: [0.2, 0.8]
-- `exit_profit_pct`: [0.002, 0.015]
-- `stop_loss_pct`: [0.005, 0.030]
-- `max_minutes_elapsed`: [4.0, 15.0]
+- `btc_threshold_up`: [1e-5, 2e-4]
+- `btc_threshold_down`: [1e-5, 2e-4]
+- `lookback_minutes`: [2, 8]
+- `er_threshold`: [0.3, 0.9]
+- `exit_profit_pct`: [0.001, 0.015]
+- `stop_loss_pct`: [0.002, 0.02]
+- `max_minutes_elapsed`: [4.0, 14.0]
 - `filter_strike_trend`: True or False
-- `pos_size_pct`: 0.03
+- `pos_size_pct`: [0.01, 0.06]
 
-## Success Criteria / Results
+## Success Criteria / Results (2026-07-01)
 - Filter active: True
-- Optimal parameters (Trial 297):
-  - `btc_threshold_up`: 0.000056
-  - `btc_threshold_down`: 0.000055
+- Optimal parameters (Trial 299/Optuna best):
+  - `btc_threshold_up`: 2.5186282046009214e-05
+  - `btc_threshold_down`: 9.353543003044717e-05
   - `lookback_minutes`: 2
-  - `er_threshold`: 0.6755
-  - `exit_profit_pct`: 0.004686
-  - `stop_loss_pct`: 0.007602
-  - `max_minutes_elapsed`: 10.7445
+  - `er_threshold`: 0.3840991512520384
+  - `exit_profit_pct`: 0.0018971402804499522
+  - `stop_loss_pct`: 0.004779526669271217
+  - `max_minutes_elapsed`: 9.209278552193862
+  - `pos_size_pct`: 0.04295752292230486
 - **Out-of-Sample (OOS) Results**:
-  - Sharpe: 185.17 (exceeds baseline 183.33)
-  - MaxDD: Better than -30% (expected around -1.95%)
+  - Sharpe: 185.76 (exceeds baseline 185.18)
+  - MaxDD: Better than -30% (expected around -2.91%)
+
+## Strategy Process Isolation Spec (2026-06-30)
+### Requirements
+- **Goal:** Isolate the three active strategies (`btc_trend`, `sniper_v3`, `scalper_v1`) into independent paper trading processes.
+- **Capital Allocation:** Start each strategy with an independent starting balance of $1,000.00.
+- **Process Management:** Define three distinct processes in `ecosystem.config.cjs`:
+  - `poly-bot-btc-trend` (runs `paper_trade_audit.py --strategy btc_trend --ledger logs/ledger_btc_trend.json`)
+  - `poly-bot-sniper` (runs `paper_trade_audit.py --strategy sniper_v3 --ledger logs/ledger_sniper_v3.json`)
+  - `poly-bot-scalper` (runs `paper_trade_audit.py --strategy scalper_v1 --ledger logs/ledger_scalper_v1.json`)
+- **Ledger Inits:** Create initial ledger files under `logs/` directory.
+

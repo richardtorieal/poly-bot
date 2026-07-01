@@ -37,9 +37,9 @@ class PaperTradeAudit:
         self.bet_size = 50.0
         
         all_strategies = {
-            "btc_trend": {"name": "BTC Trend (Optimized)", "interval": 15, "thread_id": "1514487790623133790", "desc": "Lead-Lag Trend"},
-            "sniper_v3": {"name": "Sniper V3", "interval": 15, "thread_id": "1514487790623133790", "desc": "15m Dual Confluence"},
-            "scalper_v1": {"name": "Scalper V1", "interval": 5, "thread_id": "1514487790623133790", "desc": "5m Trend Pullback"}
+            "btc_trend": {"name": "BTC Trend (Optimized)", "interval": 15, "thread_id": "1511091530385985707", "desc": "Lead-Lag Trend"},
+            "sniper_v3": {"name": "Sniper V3", "interval": 15, "thread_id": "1511145712841396355", "desc": "15m Dual Confluence"},
+            "scalper_v1": {"name": "Scalper V1", "interval": 5, "thread_id": "1511147705324277761", "desc": "5m Trend Pullback"}
         }
 
         if strategy_id:
@@ -123,7 +123,7 @@ class PaperTradeAudit:
             book = self.wss.get_book(tid)
             if book: self.live_books[tid] = book
 
-    async def simulate_execution(self, prediction: str, current_price: float, interval: int = 15) -> dict:
+    async def simulate_execution(self, prediction: str, current_price: float, interval: int = 15, bet_size: float = 50.0) -> dict:
         try:
             market = await self.mapper.get_market_for_prediction(prediction, current_price, interval)
             if not market: return {"error": f"No suitable {interval}m Polymarket found"}
@@ -141,7 +141,7 @@ class PaperTradeAudit:
                 except: return {"error": "REST fallback failed"}
 
             orderbook = self.live_books[tid]
-            execution = MarketSimulator.simulate_buy(orderbook, self.bet_size)
+            execution = MarketSimulator.simulate_buy(orderbook, bet_size)
             if "error" in execution: return execution
             
             execution.update({
@@ -155,7 +155,9 @@ class PaperTradeAudit:
 
     async def run_loop(self):
         logger.info(f"🚀 Starting Unified Paper Trader (Run: {self.run_id})")
-        await self._alert_discord(f"🚀 **Paper Trader Online** (Run: `{self.run_id}`)\n• Balance: `${self.balance:.2f}`\n• Loop: `2s`\n• Parity: `Unified Strategy Classes`", "1514487790623133790")
+        # Route startup message to the first active strategy's thread
+        thread_id = list(self.strategies.values())[0]['thread_id'] if self.strategies else "1514487790623133790"
+        await self._alert_discord(f"🚀 **Paper Trader Online** (Run: `{self.run_id}`)\n• Balance: `${self.balance:.2f}`\n• Loop: `2s`\n• Parity: `Unified Strategy Classes`", thread_id)
         
         # Load historical buffer for indicators
         try:
@@ -197,24 +199,34 @@ class PaperTradeAudit:
                         
                         if pred:
                             logger.warning(f"🎯 SIGNAL DETECTED: {strat_id} -> {pred}")
-                            if self.balance < self.bet_size:
-                                logger.error(f"Insufficient balance for {strat_id}: ${self.balance:.2f} < ${self.bet_size:.2f}")
+                            
+                            # Dynamic position sizing (compounding)
+                            pos_size_pct = 0.03
+                            if strat_id == "btc_trend":
+                                pos_size_pct = self.config.get('strategy', {}).get('parameters', {}).get('pos_size_pct', 0.03)
+                            bet_size = max(5.0, round(self.balance * pos_size_pct, 2))
+                            
+                            if self.balance < bet_size:
+                                logger.error(f"Insufficient balance for {strat_id}: ${self.balance:.2f} < ${bet_size:.2f}")
                                 continue
                                 
                             # Cooldown check
                             if not any(s for s in self.active_signals if s['strat'] == strat_id and (now - s['start_t']).seconds < (strat_info['interval'] * 60)):
-                                execution = await self.simulate_execution(pred, p, strat_info['interval'])
+                                execution = await self.simulate_execution(pred, p, strat_info['interval'], bet_size)
                                 if "error" in execution:
                                     logger.error(f"Execution Error for {strat_id}: {execution['error']}")
                                     continue
                                     
                                 trade_id = str(uuid.uuid4())[:8]
+                                self.balance -= bet_size
+                                
                                 msg = (f"🔭 **{strat_info['name']} SIGNAL**\n"
                                        f"• **Trade ID:** `{trade_id}`\n"
                                        f"• **Market:** [{execution['slug']}](https://polymarket.com/market/{execution['slug']})\n"
-                                       f"• **Bet Size:** ${self.bet_size:.2f}\n"
+                                       f"• **Bet Size:** ${bet_size:.2f}\n"
                                        f"• **Actual Avg Fill:** ${execution['avg_price']:.3f}\n"
-                                       f"• **Action:** PAPER BUY {'YES' if pred == 'UP' else 'NO'}")
+                                       f"• **Action:** PAPER BUY {'YES' if pred == 'UP' else 'NO'}\n"
+                                       f"• **Account Balance:** ${self.balance:.2f}")
                                 
                                 await self._alert_discord(msg, strat_info['thread_id'])
                                 
@@ -222,10 +234,12 @@ class PaperTradeAudit:
                                     "trade_id": trade_id, "strat": strat_id, "start_t": now, 
                                     "token_id": execution['token_id'], "entry_price": execution['avg_price'],
                                     "shares": execution['shares'], "peak_roi": -100.0, "has_scaled_out": False,
-                                    "interval_min": strat_info['interval'], "resolve_t": now + timedelta(minutes=strat_info['interval'])
+                                    "interval_min": strat_info['interval'], "resolve_t": now + timedelta(minutes=strat_info['interval']),
+                                    "bet_size": bet_size,
+                                    "entry_btc": p,
+                                    "prediction": pred
                                 }
                                 self.active_signals.append(trade_entry)
-                                self.balance -= self.bet_size
                                 self._save_ledger()
                             else:
                                 logger.info(f"Signal for {strat_id} skipped due to cooldown.")
@@ -252,13 +266,13 @@ class PaperTradeAudit:
                         total_exit_value = s['shares'] * curr_bid
                         # PnL is (Total Cash Out) - (Total Cash In for these shares)
                         # When selling FULL, cash in is either bet_size (if no scale out) or bet_size/2 (if already scaled out)
-                        initial_cost = 50.0 if not s['has_scaled_out'] else 25.0
+                        initial_cost = s.get('bet_size', 50.0) if not s['has_scaled_out'] else (s.get('bet_size', 50.0) / 2)
                         pnl = total_exit_value - initial_cost
                         self.balance += total_exit_value
                         
                         msg = (f"⚡ **EARLY EXIT ({exit_eval['reason']})**\n"
                                f"• **Trade ID:** `{s['trade_id']}`\n"
-                               f"• **Realized ROI:** {exit_eval['roi']:.2%}\n"
+                               f"• **Realized ROI:** {exit_eval['roi']:.2f}%\n"
                                f"• **PnL:** ${pnl:+.2f}\n"
                                f"• **Account Balance:** ${self.balance:.2f}")
                         await self._alert_discord(msg, self.strategies[s['strat']]['thread_id'])
@@ -269,7 +283,7 @@ class PaperTradeAudit:
                         # Scale out 50%
                         half_shares = s['shares'] / 2
                         exit_value = half_shares * curr_bid
-                        initial_cost = 25.0 # 50% of original bet
+                        initial_cost = s.get('bet_size', 50.0) / 2 # 50% of original bet
                         pnl = exit_value - initial_cost
                         self.balance += exit_value
                         s['shares'] -= half_shares
@@ -277,7 +291,7 @@ class PaperTradeAudit:
                         
                         msg = (f"✂️ **SCALING OUT (1/2)**\n"
                                f"• **Trade ID:** `{s['trade_id']}`\n"
-                               f"• **ROI:** {exit_eval['roi']:.2%}\n"
+                               f"• **ROI:** {exit_eval['roi']:.2f}%\n"
                                f"• **Locked PnL:** ${pnl:+.2f}\n"
                                f"• **Account Balance:** ${self.balance:.2f}")
                         await self._alert_discord(msg, self.strategies[s['strat']]['thread_id'])
@@ -287,9 +301,19 @@ class PaperTradeAudit:
 
                     # FINAL EXPIRY RESOLUTION
                     if now >= s['resolve_t'] and s not in resolved:
-                        win = (s['entry_price'] > 0.5) # Simplified for paper resolve
+                        curr_btc = await self.fetch_btc()
+                        entry_btc = s.get('entry_btc', 0.0)
+                        prediction = s.get('prediction', 'UP')
+                        
+                        if entry_btc > 0.0 and curr_btc > 0.0:
+                            win = (prediction == 'UP' and curr_btc > entry_btc) or (prediction == 'DOWN' and curr_btc < entry_btc)
+                            logger.info(f"Resolution for {s['trade_id']}: Pred={prediction}, Entry BTC={entry_btc:.2f}, Expiry BTC={curr_btc:.2f} -> Win={win}")
+                        else:
+                            win = (s['entry_price'] > 0.5) # Fallback to entry price rule
+                            logger.warning(f"Resolution fallback for {s['trade_id']}: entry_btc or curr_btc missing.")
+                            
                         final_val = s['shares'] * 1.0 if win else 0.0
-                        initial_cost = 50.0 if not s['has_scaled_out'] else 25.0
+                        initial_cost = s.get('bet_size', 50.0) if not s['has_scaled_out'] else (s.get('bet_size', 50.0) / 2)
                         pnl = final_val - initial_cost
                         self.balance += final_val
                         
