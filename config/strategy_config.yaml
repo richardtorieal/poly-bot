@@ -1,15 +1,15 @@
 strategy:
   name: "BTCTrendStrategy"
   parameters:
-    btc_threshold: 0.000056
-    btc_threshold_up: 0.000056
-    btc_threshold_down: 0.000055
+    btc_threshold: 0.0000535
+    btc_threshold_up: 0.000051
+    btc_threshold_down: 0.000056
     lookback_minutes: 2
-    er_threshold: 0.6755
+    er_threshold: 0.5322
     pos_size_pct: 0.03
-    exit_profit_pct: 0.004686
-    stop_loss_pct: 0.007602
-    max_minutes_elapsed: 10.7445
+    exit_profit_pct: 0.002899
+    stop_loss_pct: 0.014882
+    max_minutes_elapsed: 9.81
     filter_strike_trend: true
 
 

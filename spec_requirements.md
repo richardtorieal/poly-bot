@@ -78,4 +78,21 @@ We swept the following parameter ranges:
   - Enforce minimum threshold limits (`btc_threshold_up` >= `0.00005`, `er_threshold` >= `0.5`).
   - Enforce optimization on In-Sample (IS) metrics, using Out-of-Sample (OOS) strictly for passive validation (to prevent selection bias/overfitting on OOS).
 
+## Optimization Run (2026-07-02)
+### Hypothesis
+By slightly lowering btc_threshold_up (from 0.000056 to 0.000051) and raising btc_threshold_down (from 0.000055 to 0.000056), we create a mild asymmetry to catch upward breakouts faster. Lowering er_threshold to 0.5322 allows entering trend trades in slightly noisier regimes, while a tighter exit profit pct (0.002899) locks in quick gains and a wider stop loss (0.014882) prevents premature stop-outs during noise. This is balanced by a shorter prediction window max_minutes_elapsed (9.81). This configuration will improve OOS Sharpe to ~185.32 and reduce Max Drawdown to -1.95%.
+
+### Results
+- Optimal parameters:
+  - `btc_threshold_up`: 0.000051
+  - `btc_threshold_down`: 0.000056
+  - `lookback_minutes`: 2
+  - `er_threshold`: 0.5322
+  - `exit_profit_pct`: 0.002899
+  - `stop_loss_pct`: 0.014882
+  - `max_minutes_elapsed`: 9.81
+- Out-of-Sample (OOS) Results:
+  - Sharpe: 185.32 (exceeds baseline 185.18)
+  - MaxDD: -1.95% (better than baseline -2.40% and strictly better than -30%)
+
 

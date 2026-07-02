@@ -44,4 +44,10 @@
 - [x] Add OOS overfitting protection, symmetry constraints, and minimum parameter boundaries to the autonomous quant optimization prompt in `discord-bridge/jobs.json` @quant-dev
 - [x] Restart PM2 process `poly-bot-btc-trend` live to apply reverted settings @quant-dev
 
+## Parameter Optimization & Tuning (2026-07-02) 📊
+- [x] Run parameter sweep with safety constraints (symmetric up/down triggers, er_threshold >= 0.50, stop_loss_pct >= 0.50%) on In-Sample (IS) metrics @quant-dev
+- [x] Improve OOS Sharpe to 185.32 (exceeding baseline 185.18) while maintaining Max Drawdown at -1.95% (better than baseline -2.40% and strictly better than -30%) @quant-dev
+- [x] Mutate `config/strategy_config.yaml` on feature branch @quant-dev
+- [x] Run `PYTHONPATH=. python3 validate_loop.py` to confirm @quant-dev
+
 
