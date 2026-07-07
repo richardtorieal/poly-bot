@@ -105,6 +105,17 @@ class PaperTradeAudit:
             except Exception as e:
                 logger.error(f"Failed to post to Discord: {e}")
 
+    def get_btc_price_at_timestamp(self, ts: float) -> float:
+        if not self.btc_buffer or not ts: return 0.0
+        try:
+            target_dt = datetime.fromtimestamp(ts)
+            closest_entry = min(self.btc_buffer, key=lambda x: abs((x[0] - target_dt).total_seconds()))
+            if abs((closest_entry[0] - target_dt).total_seconds()) <= 90:
+                return closest_entry[1]
+        except Exception as e:
+            logger.error(f"Error finding closest price in buffer: {e}")
+        return 0.0
+
     async def fetch_btc(self):
         try:
             df = await self.kraken.get_btc_ohlc(interval=1)
@@ -147,7 +158,8 @@ class PaperTradeAudit:
             execution.update({
                 "token_id": tid,
                 "slug": market['slug'],
-                "question": market['question']
+                "question": market['question'],
+                "window_start": market.get('window_start')
             })
             return execution
         except Exception as e:
@@ -230,14 +242,23 @@ class PaperTradeAudit:
                                 
                                 await self._alert_discord(msg, strat_info['thread_id'])
                                 
+                                w_start = execution.get('window_start')
+                                if w_start:
+                                    w_start_dt = datetime.fromtimestamp(w_start)
+                                    resolve_t = w_start_dt + timedelta(minutes=strat_info['interval'])
+                                else:
+                                    w_start = int(now.timestamp())
+                                    resolve_t = now + timedelta(minutes=strat_info['interval'])
+
                                 trade_entry = {
                                     "trade_id": trade_id, "strat": strat_id, "start_t": now, 
                                     "token_id": execution['token_id'], "entry_price": execution['avg_price'],
                                     "shares": execution['shares'], "peak_roi": -100.0, "has_scaled_out": False,
-                                    "interval_min": strat_info['interval'], "resolve_t": now + timedelta(minutes=strat_info['interval']),
+                                    "interval_min": strat_info['interval'], "resolve_t": resolve_t,
                                     "bet_size": bet_size,
                                     "entry_btc": p,
-                                    "prediction": pred
+                                    "prediction": pred,
+                                    "window_start": w_start
                                 }
                                 self.active_signals.append(trade_entry)
                                 self._save_ledger()
@@ -260,7 +281,8 @@ class PaperTradeAudit:
                     time_left = (s['resolve_t'] - now).total_seconds()
                     
                     # Evaluate exit via Centralized StrategyManager
-                    exit_eval = self.manager.evaluate_exit(s, curr_bid, time_left)
+                    strat_params = self.config.get('strategy', {}).get('parameters', {}) if s['strat'] == "btc_trend" else None
+                    exit_eval = self.manager.evaluate_exit(s, curr_bid, time_left, config=strat_params)
                     
                     if exit_eval['action'] == "EXIT_FULL":
                         total_exit_value = s['shares'] * curr_bid
@@ -302,15 +324,20 @@ class PaperTradeAudit:
                     # FINAL EXPIRY RESOLUTION
                     if now >= s['resolve_t'] and s not in resolved:
                         curr_btc = await self.fetch_btc()
-                        entry_btc = s.get('entry_btc', 0.0)
                         prediction = s.get('prediction', 'UP')
                         
-                        if entry_btc > 0.0 and curr_btc > 0.0:
-                            win = (prediction == 'UP' and curr_btc > entry_btc) or (prediction == 'DOWN' and curr_btc < entry_btc)
-                            logger.info(f"Resolution for {s['trade_id']}: Pred={prediction}, Entry BTC={entry_btc:.2f}, Expiry BTC={curr_btc:.2f} -> Win={win}")
+                        # Retrieve true contract strike price (BTC price at start of window)
+                        strike_btc = self.get_btc_price_at_timestamp(s.get('window_start'))
+                        if strike_btc == 0.0:
+                            # Fallback to entry BTC if not found
+                            strike_btc = s.get('entry_btc', 0.0)
+                        
+                        if strike_btc > 0.0 and curr_btc > 0.0:
+                            win = (prediction == 'UP' and curr_btc > strike_btc) or (prediction == 'DOWN' and curr_btc < strike_btc)
+                            logger.info(f"Resolution for {s['trade_id']}: Pred={prediction}, Strike BTC={strike_btc:.2f}, Expiry BTC={curr_btc:.2f} -> Win={win}")
                         else:
                             win = (s['entry_price'] > 0.5) # Fallback to entry price rule
-                            logger.warning(f"Resolution fallback for {s['trade_id']}: entry_btc or curr_btc missing.")
+                            logger.warning(f"Resolution fallback for {s['trade_id']}: strike_btc ({strike_btc:.2f}) or curr_btc ({curr_btc:.2f}) missing.")
                             
                         final_val = s['shares'] * 1.0 if win else 0.0
                         initial_cost = s.get('bet_size', 50.0) if not s['has_scaled_out'] else (s.get('bet_size', 50.0) / 2)

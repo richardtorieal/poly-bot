@@ -89,7 +89,8 @@ class StrategyManager:
     def evaluate_exit(position: Dict[str, Any], 
                       current_bid_price: float, 
                       time_left_sec: float,
-                      final_minute_protector: bool = True) -> Dict[str, Any]:
+                      final_minute_protector: bool = True,
+                      config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Implements the 'Hybrid Power' exit logic.
         Position dict must contain: entry_price, shares, peak_roi, has_scaled_out, interval_min
@@ -102,16 +103,23 @@ class StrategyManager:
         running_roi = ((current_bid_price - entry_price) / entry_price) * 100
         peak_roi = max(peak_roi, running_roi)
         
-        exit_action = None # "EXIT_FULL", "EXIT_HALF", or None
-        reason = None
-        
-        # 1. Hard Stop Loss (-40%)
-        if running_roi <= -40.0:
+        # 1. Stop Loss (configured or fallback to -40%)
+        if config and 'stop_loss_pct' in config:
+            stop_loss_roi = -config['stop_loss_pct'] * 100.0
+        else:
+            stop_loss_roi = -40.0
+            
+        if running_roi <= stop_loss_roi:
             return {"action": "EXIT_FULL", "reason": "STOP_LOSS", "roi": running_roi, "peak_roi": peak_roi}
             
-        # 2. Milestone 1 (+100% ROI) -> Scale out 50%
-        if running_roi >= 100.0 and not has_scaled_out:
-            return {"action": "EXIT_HALF", "reason": "MILESTONE_100", "roi": running_roi, "peak_roi": peak_roi}
+        # 2. Profit Target (configured or fallback to milestone +100%)
+        if config and 'exit_profit_pct' in config:
+            target_roi = config['exit_profit_pct'] * 100.0
+            if running_roi >= target_roi:
+                return {"action": "EXIT_FULL", "reason": "PROFIT_TARGET", "roi": running_roi, "peak_roi": peak_roi}
+        else:
+            if running_roi >= 100.0 and not has_scaled_out:
+                return {"action": "EXIT_HALF", "reason": "MILESTONE_100", "roi": running_roi, "peak_roi": peak_roi}
             
         # 3. Trailing Stop (20% from peak) - only after +50% ROI
         if peak_roi >= 50.0 and running_roi < (peak_roi - 20.0):
@@ -121,8 +129,9 @@ class StrategyManager:
         if final_minute_protector:
             # Final 2 minutes for 15m, Final 45s for 5m
             is_final_stretch = False
-            if position['interval_min'] == 15 and time_left_sec <= 120: is_final_stretch = True
-            elif position['interval_min'] == 5 and time_left_sec <= 45: is_final_stretch = True
+            interval_min = position.get('interval_min', 15)
+            if interval_min == 15 and time_left_sec <= 120: is_final_stretch = True
+            elif interval_min == 5 and time_left_sec <= 45: is_final_stretch = True
             
             if is_final_stretch:
                 # If currently profitable, exit if we drop 5% from peak to lock it in

@@ -95,4 +95,40 @@ By slightly lowering btc_threshold_up (from 0.000056 to 0.000051) and raising bt
   - Sharpe: 185.32 (exceeds baseline 185.18)
   - MaxDD: -1.95% (better than baseline -2.40% and strictly better than -30%)
 
+## Real-World Parity & Resolution Fixes (2026-07-03)
+### Problem Identification
+1. **Resolution Bug:** The live paper trader (`paper_trade_audit.py`) was resolving contracts based on the entry BTC price instead of the actual Polymarket contract strike price (BTC price at the start of the 15m window). This led to incorrect win/loss resolution.
+2. **Exit Parity Discrepancy:** The optimizer tuned `exit_profit_pct` and `stop_loss_pct` in the backtest engine, but the live paper trader ignored them entirely and fell back to hardcoded milestone exits (-40% stop loss, +100% target profit).
+3. **Imaginary Backtests:** The backtest engine used microscopic targets (e.g. 0.28% profit target) and ignored the real Polymarket bid-ask spread and tick size, leading to highly inflated backtest returns and Sharpe ratios that are physically impossible to replicate live.
+
+### Implementation Plan
+- **Token Mapper:** Include `window_start` (epoch timestamp) in matched market metadata so the trader knows when the contract window began.
+- **Strategy Manager:** Update `evaluate_exit` to accept the strategy config parameters (`exit_profit_pct`, `stop_loss_pct`) to achieve true parity.
+- **Paper Trader:** Resolve expired contracts using the BTC price at `window_start` (the strike price) fetched from the price buffer, instead of the entry price.
+- **Backtest Engine:** Re-write the simulation loop to use `StrategyManager.evaluate_exit` for exits, simulate a realistic bid-ask spread (based on `slippage_bps` / spread proxy), and correctly resolve expired contracts.
+- **Quant Optimization Prompts:** Update constraints in `jobs.json` to enforce `exit_profit_pct` >= `0.01` (1%) and `stop_loss_pct` >= `0.015` (1.5%) to ensure they cover the spread and are tradeable.
+
+
+## Optimization Run (2026-07-07)
+### Hypothesis
+By increasing the trend entry threshold slightly (up to ~0.000135) and increasing the `er_threshold` significantly to `0.8428`, we filter out weaker, noisier price movements and enter only highly efficient trends. Furthermore, enforcing minimum tradeable exit targets (`exit_profit_pct` at `0.0101` and `stop_loss_pct` at `0.0210`) ensures we are resilient to spread costs and avoid premature stop-outs. This will significantly improve the In-Sample (IS) Sharpe Ratio to ~172.76, while maintaining or improving Out-of-Sample (OOS) Sharpe at ~154.43 and Max Drawdown at -6.03% (strictly better than -30%).
+
+### Results
+- Optimal parameters (rounded):
+  - `btc_threshold`: 0.000135
+  - `btc_threshold_up`: 0.000132
+  - `btc_threshold_down`: 0.000137
+  - `lookback_minutes`: 2
+  - `er_threshold`: 0.8428
+  - `pos_size_pct`: 0.03
+  - `exit_profit_pct`: 0.0101
+  - `stop_loss_pct`: 0.0210
+  - `max_minutes_elapsed`: 10.35
+  - `filter_strike_trend`: True
+- In-Sample (IS) Results:
+  - Sharpe: 172.76
+- Out-of-Sample (OOS) Results:
+  - Sharpe: 154.43
+  - MaxDD: -6.03%
+
 

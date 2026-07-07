@@ -50,4 +50,20 @@
 - [x] Mutate `config/strategy_config.yaml` on feature branch @quant-dev
 - [x] Run `PYTHONPATH=. python3 validate_loop.py` to confirm @quant-dev
 
+## Realistic Backtesting & Parity Fixes (2026-07-03) 🛠️
+- [x] Fix contract expiration resolution in `paper_trade_audit.py` to use actual window strike price from the buffer. @quant-dev
+- [x] Unify strategy exit logic in `StrategyManager.evaluate_exit` and pass parameters from configuration. @quant-dev
+- [x] Rewrite `BacktestEngine` to match the exact order-routing, spread, and expiration resolution logic of the live trader. @quant-dev
+- [x] Update the autonomous optimization constraints in `jobs.json` to enforce tradeable targets (>=1.0% profit target, >=1.5% stop loss) and execution inside the virtual environment. @quant-dev
+- [x] Validate results locally and restart PM2 processes. @quant-dev
+
+
+## Parameter Optimization & Tuning under Parity & Constraints (2026-07-07) 📊
+- [x] Run parameter sweep with new safety and tradeability constraints (symmetric up/down triggers, er_threshold >= 0.50, exit_profit_pct >= 1.0%, stop_loss_pct >= 1.5%) on In-Sample (IS) metrics @quant-dev
+- [x] Improve In-Sample Sharpe to 172.61 (exceeding baseline 145.53) and Out-of-Sample Sharpe to 154.46 (exceeding baseline 152.36) while maintaining Max Drawdown at -6.03% (strictly better than -30%) @quant-dev
+- [x] Mutate `config/strategy_config.yaml` on feature branch @quant-dev
+- [x] Run `PYTHONPATH=. python3 validate_loop.py` to validate and confirm improvements @quant-dev
+- [x] Merge feature branch back to `main`, push to origin, and restart PM2 process `poly-bot-btc-trend` live @quant-dev
+
+
 

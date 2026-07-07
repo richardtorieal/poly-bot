@@ -91,11 +91,18 @@ class TokenMapper:
                         
                         target_token_id = cand['token_id_yes'] if prediction == "UP" else cand['token_id_no']
                         
+                        # Parse window start timestamp from slug (e.g. btc-updown-15m-1783057500)
+                        try:
+                            window_start = int(cand['slug'].split('-')[-1])
+                        except:
+                            window_start = int(time.time())
+                        
                         return {
                             "token_id": target_token_id,
                             "slug": cand['slug'],
                             "question": cand['question'],
-                            "current_odds": price
+                            "current_odds": price,
+                            "window_start": window_start
                         }
                 except Exception as e: 
                     logger.debug(f"Failed to check price for {cand['slug']}: {e}")
