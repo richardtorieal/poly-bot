@@ -109,8 +109,12 @@ class BacktestEngine:
                         
                         # Get true BTC strike price at start of the window
                         window_start = current_row['window_start']
-                        window_start_row = data[data['timestamp'] == window_start]
-                        strike_btc = window_start_row.iloc[0]['btc_price'] if not window_start_row.empty else current_row['btc_price']
+                        offset = int((current_row['timestamp'] - window_start) // 60)
+                        if i - offset >= 0 and data.iloc[i - offset]['timestamp'] == window_start:
+                            strike_btc = data.iloc[i - offset]['btc_price']
+                        else:
+                            window_start_row = data[data['timestamp'] == window_start]
+                            strike_btc = window_start_row.iloc[0]['btc_price'] if not window_start_row.empty else current_row['btc_price']
                         
                         positions.append({
                             'side': decision,

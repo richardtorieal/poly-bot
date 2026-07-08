@@ -64,9 +64,18 @@ class BTCTrendStrategy(BaseStrategy):
         
         # Filter by cumulative trend since the start of the 15-minute resolution window
         if self.filter_strike_trend and 'timestamp' in history.columns:
-            window_start_row = history[history['timestamp'] == window_start]
-            if not window_start_row.empty:
-                strike_price = window_start_row.iloc[0]['btc_price']
+            strike_price = None
+            # Fast reverse search up to 20 rows since window_start is at most 15 mins ago
+            for j in range(1, min(20, len(history) + 1)):
+                if history.iloc[-j]['timestamp'] == window_start:
+                    strike_price = history.iloc[-j]['btc_price']
+                    break
+            if strike_price is None:
+                window_start_row = history[history['timestamp'] == window_start]
+                if not window_start_row.empty:
+                    strike_price = window_start_row.iloc[0]['btc_price']
+            
+            if strike_price is not None:
                 window_change = (current_btc - strike_price) / strike_price
                 if change > 0 and window_change <= 0:
                     return "HOLD"

@@ -155,4 +155,27 @@ By using a slightly higher `btc_threshold` (0.000155) and an even higher efficie
   - MaxDD: -6.03%
 
 
+## Optimization Run (2026-07-08)
+### Hypothesis
+By running a fine-grained parameter optimization on the In-Sample dataset using Optuna, enforcing strict tradeability constraints (exit profit >= 1%, stop loss >= 1.5%), symmetry triggers (up/down thresholds within 10%), and minimum entry criteria (threshold >= 0.00005, er_threshold >= 0.5), we can find a parameter combination that filters noisy market regimes more effectively. We hypothesize that slightly tuning the entry threshold and lookback/max_elapsed time parameters will lead to a higher OOS Sharpe Ratio (exceeding 155.91) while maintaining Max Drawdown strictly better than -30%.
+
+### Results
+- Optimal parameters (Trial 118):
+  - `btc_threshold`: 0.00007945
+  - `btc_threshold_up`: 0.00008736
+  - `btc_threshold_down`: 0.00009605
+  - `lookback_minutes`: 2
+  - `er_threshold`: 0.5614
+  - `pos_size_pct`: 0.03
+  - `exit_profit_pct`: 0.01043
+  - `stop_loss_pct`: 0.05208
+  - `max_minutes_elapsed`: 10.86
+  - `filter_strike_trend`: True
+- In-Sample (IS) Results:
+  - Sharpe: 164.23
+- Out-of-Sample (OOS) Results:
+  - Sharpe: 157.63 (exceeds baseline 155.91)
+  - MaxDD: -6.03%
+
+
 
