@@ -2949,3 +2949,47 @@
       MaxDD: -6.03%
     ---------------------------------------------------
     
+    DATE: 2026-07-08 16:05:05
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 7.945e-05, 'btc_threshold_up': 8.736e-05, 'btc_threshold_down': 9.605e-05, 'lookback_minutes': 2, 'er_threshold': 0.5614, 'pos_size_pct': 0.03, 'exit_profit_pct': 0.01043, 'stop_loss_pct': 0.05208, 'max_minutes_elapsed': 10.86, 'filter_strike_trend': True}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 69893514.81%
+      Win Rate: 81.0%
+      Sharpe: 163.66
+      Trades: 4901
+
+    IN-SAMPLE (IS):
+      PnL%: 4724039.30%
+      Win Rate: 80.6%
+      Sharpe: 164.23
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 1292.90%
+      Win Rate: 82.4%
+      Sharpe: 157.63
+      MaxDD: -6.03%
+    ---------------------------------------------------
+    
+    DATE: 2026-07-10 17:01:37
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 7.222e-05, 'btc_threshold_up': 7.536e-05, 'btc_threshold_down': 7.592e-05, 'lookback_minutes': 2, 'er_threshold': 0.5376, 'pos_size_pct': 0.03, 'exit_profit_pct': 0.01358, 'stop_loss_pct': 0.04984, 'max_minutes_elapsed': 10.91, 'filter_strike_trend': True}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 58135671.42%
+      Win Rate: 80.3%
+      Sharpe: 158.16
+      Trades: 5010
+
+    IN-SAMPLE (IS):
+      PnL%: 3778228.40%
+      Win Rate: 79.9%
+      Sharpe: 157.35
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 1348.60%
+      Win Rate: 82.0%
+      Sharpe: 157.63
+      MaxDD: -6.03%
+    ---------------------------------------------------
+    

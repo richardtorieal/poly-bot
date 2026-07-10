@@ -48,7 +48,10 @@ class StrategyManager:
                 'btc_threshold_down': config.get('btc_threshold_down'),
                 'lookback_minutes': config.get('lookback_minutes', 15),
                 'er_threshold': config.get('er_threshold', 0.5),
-                'max_minutes_elapsed': config.get('max_minutes_elapsed', 999.0)
+                'max_minutes_elapsed': config.get('max_minutes_elapsed', 999.0),
+                'volatility_adapt': config.get('volatility_adapt', False),
+                'er_lookback': config.get('er_lookback'),
+                'filter_strike_trend': config.get('filter_strike_trend', True)
             }
             
             # Since some values might be None, filter them out before hashing/instantiation

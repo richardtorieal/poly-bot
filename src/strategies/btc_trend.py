@@ -14,7 +14,7 @@ class BTCTrendStrategy(BaseStrategy):
     Simple Lead-Lag strategy: If BTC moves more than X% in Y minutes, 
     bet on Polymarket catching up.
     """
-    def __init__(self, btc_threshold: float = 0.0005, lookback_minutes: int = 5, er_threshold: float = 0.5, max_minutes_elapsed: float = 999.0, btc_threshold_up: float = None, btc_threshold_down: float = None, filter_strike_trend: bool = True):
+    def __init__(self, btc_threshold: float = 0.0005, lookback_minutes: int = 5, er_threshold: float = 0.5, max_minutes_elapsed: float = 999.0, btc_threshold_up: float = None, btc_threshold_down: float = None, filter_strike_trend: bool = True, volatility_adapt: bool = False, er_lookback: int = None):
         self.btc_threshold = btc_threshold
         self.btc_threshold_up = btc_threshold_up if btc_threshold_up is not None else btc_threshold
         self.btc_threshold_down = btc_threshold_down if btc_threshold_down is not None else btc_threshold
@@ -22,6 +22,8 @@ class BTCTrendStrategy(BaseStrategy):
         self.er_threshold = er_threshold
         self.max_minutes_elapsed = max_minutes_elapsed
         self.filter_strike_trend = filter_strike_trend
+        self.volatility_adapt = volatility_adapt
+        self.er_lookback = er_lookback if er_lookback is not None else lookback_minutes
 
     def decide(self, current_data: pd.Series, history: pd.DataFrame) -> str:
         # Determine timestamp and check if within prediction window filter
@@ -48,15 +50,37 @@ class BTCTrendStrategy(BaseStrategy):
         
         change = (current_btc - past_price) / past_price
         
-        # Efficiency Ratio (ER)
-        # ER = total_change / sum_of_absolute_minute_changes
-        price_diffs = relevant_history['btc_price'].diff().abs()
-        volatility = price_diffs.sum() + abs(current_btc - relevant_history.iloc[-1]['btc_price'])
-        
-        if volatility == 0:
-            er = 0
+        # Adaptive volatility multiplier
+        if self.volatility_adapt and len(history) >= 60:
+            btc_prices = history['btc_price'].iloc[-60:]
+            returns = btc_prices.pct_change().dropna()
+            current_vol = returns.std()
+            if current_vol > 0:
+                vol_mult = current_vol / 0.000655
+                vol_mult = max(0.5, min(2.0, vol_mult))
+            else:
+                vol_mult = 1.0
         else:
-            er = abs(current_btc - past_price) / volatility
+            vol_mult = 1.0
+
+        threshold_up = self.btc_threshold_up * vol_mult
+        threshold_down = self.btc_threshold_down * vol_mult
+        
+        # Efficiency Ratio (ER)
+        # Calculated over er_lookback minutes instead of lookback_minutes for stability
+        er_lookback_val = self.er_lookback
+        if len(history) >= er_lookback_val:
+            er_history = history.iloc[-er_lookback_val:]
+            er_past_price = er_history.iloc[0]['btc_price']
+            price_diffs = er_history['btc_price'].diff().abs()
+            volatility = price_diffs.sum() + abs(current_btc - er_history.iloc[-1]['btc_price'])
+            
+            if volatility == 0:
+                er = 0
+            else:
+                er = abs(current_btc - er_past_price) / volatility
+        else:
+            er = 0
 
         # Only enter if the trend is "efficient"
         if er < self.er_threshold:
@@ -82,8 +106,9 @@ class BTCTrendStrategy(BaseStrategy):
                 if change < 0 and window_change >= 0:
                     return "HOLD"
         
-        if change > self.btc_threshold_up:
+        if change > threshold_up:
             return "YES"
-        elif change < -self.btc_threshold_down:
+        elif change < -threshold_down:
             return "NO"
         return "HOLD"
+
