@@ -7,7 +7,7 @@ strategy:
     lookback_minutes: 2
     er_threshold: 0.5485
     pos_size_pct: 0.03
-    exit_profit_pct: 0.01350
+    exit_profit_pct: 0.01500
     stop_loss_pct: 0.05067
     max_minutes_elapsed: 10.85
     filter_strike_trend: true

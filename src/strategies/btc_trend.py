@@ -14,7 +14,7 @@ class BTCTrendStrategy(BaseStrategy):
     Simple Lead-Lag strategy: If BTC moves more than X% in Y minutes, 
     bet on Polymarket catching up.
     """
-    def __init__(self, btc_threshold: float = 0.0005, lookback_minutes: int = 5, er_threshold: float = 0.5, max_minutes_elapsed: float = 999.0, btc_threshold_up: float = None, btc_threshold_down: float = None, filter_strike_trend: bool = True, volatility_adapt: bool = False, er_lookback: int = None):
+    def __init__(self, btc_threshold: float = 0.0005, lookback_minutes: int = 5, er_threshold: float = 0.5, max_minutes_elapsed: float = 999.0, btc_threshold_up: float = None, btc_threshold_down: float = None, filter_strike_trend: bool = True, volatility_adapt: bool = False, er_lookback: int = None, use_ema_filter: bool = False, ema_span: int = 30):
         self.btc_threshold = btc_threshold
         self.btc_threshold_up = btc_threshold_up if btc_threshold_up is not None else btc_threshold
         self.btc_threshold_down = btc_threshold_down if btc_threshold_down is not None else btc_threshold
@@ -24,6 +24,8 @@ class BTCTrendStrategy(BaseStrategy):
         self.filter_strike_trend = filter_strike_trend
         self.volatility_adapt = volatility_adapt
         self.er_lookback = er_lookback if er_lookback is not None else lookback_minutes
+        self.use_ema_filter = use_ema_filter
+        self.ema_span = ema_span
 
     def decide(self, current_data: pd.Series, history: pd.DataFrame) -> str:
         # Determine timestamp and check if within prediction window filter
@@ -85,6 +87,16 @@ class BTCTrendStrategy(BaseStrategy):
         # Only enter if the trend is "efficient"
         if er < self.er_threshold:
             return "HOLD"
+        
+        # EMA filter to avoid counter-trend entries in high/medium-term regimes
+        if self.use_ema_filter:
+            if len(history) >= self.ema_span:
+                # Calculating EMA of last ema_span rows
+                ema = history['btc_price'].ewm(span=self.ema_span, adjust=False).mean().iloc[-1]
+                if change > 0 and current_btc < ema:
+                    return "HOLD"
+                if change < 0 and current_btc > ema:
+                    return "HOLD"
         
         # Filter by cumulative trend since the start of the 15-minute resolution window
         if self.filter_strike_trend and 'timestamp' in history.columns:

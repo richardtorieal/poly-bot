@@ -51,7 +51,9 @@ class StrategyManager:
                 'max_minutes_elapsed': config.get('max_minutes_elapsed', 999.0),
                 'volatility_adapt': config.get('volatility_adapt', False),
                 'er_lookback': config.get('er_lookback'),
-                'filter_strike_trend': config.get('filter_strike_trend', True)
+                'filter_strike_trend': config.get('filter_strike_trend', True),
+                'use_ema_filter': config.get('use_ema_filter', False),
+                'ema_span': config.get('ema_span', 30)
             }
             
             # Since some values might be None, filter them out before hashing/instantiation
@@ -124,9 +126,15 @@ class StrategyManager:
             if running_roi >= 100.0 and not has_scaled_out:
                 return {"action": "EXIT_HALF", "reason": "MILESTONE_100", "roi": running_roi, "peak_roi": peak_roi}
             
-        # 3. Trailing Stop (20% from peak) - only after +50% ROI
-        if peak_roi >= 50.0 and running_roi < (peak_roi - 20.0):
-            return {"action": "EXIT_FULL", "reason": "TRAILING_STOP", "roi": running_roi, "peak_roi": peak_roi}
+        # 3. Trailing Stop
+        if config and 'trailing_stop_activation_pct' in config and 'trailing_stop_drop_pct' in config:
+            ts_activation_roi = config['trailing_stop_activation_pct'] * 100.0
+            ts_drop_roi = config['trailing_stop_drop_pct'] * 100.0
+            if peak_roi >= ts_activation_roi and running_roi < (peak_roi - ts_drop_roi):
+                return {"action": "EXIT_FULL", "reason": "TRAILING_STOP_CUSTOM", "roi": running_roi, "peak_roi": peak_roi}
+        else:
+            if peak_roi >= 50.0 and running_roi < (peak_roi - 20.0):
+                return {"action": "EXIT_FULL", "reason": "TRAILING_STOP", "roi": running_roi, "peak_roi": peak_roi}
             
         # 4. Final Minute Protector
         if final_minute_protector:

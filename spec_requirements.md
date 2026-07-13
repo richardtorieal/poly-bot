@@ -229,8 +229,23 @@ By running a focused multi-process Optuna parameter sweep in the local neighborh
   - PnL%: 1315.15%
   - MaxDD: -6.03% (strictly better than -30%)
 
+## Optimization Run (2026-07-13 - Antigravity Exhaustive Search)
+### Hypothesis
+By running a highly focused and exhaustive multi-process Optuna parameter sweep in the local neighborhood of the July 11 baseline parameters (without volatility_adapt or use_ema_filter as they add excessive noise/slippage costs), and testing both lookback_minutes of 2 and 3, we can find a parameter combination that achieves a higher Out-of-Sample (OOS) Sharpe Ratio (>158.52) and higher raw PnL by tuning the entry/exit thresholds and time-elapsed parameters more precisely, while keeping Max Drawdown strictly better than -30%.
 
-
-
-
-
+### Results
+- Optimal parameters:
+  - `btc_threshold`: 0.00008934
+  - `btc_threshold_up`: 0.00009212
+  - `btc_threshold_down`: 0.00009377
+  - `lookback_minutes`: 2
+  - `er_threshold`: 0.5485
+  - `pos_size_pct`: 0.03
+  - `exit_profit_pct`: 0.01500
+  - `stop_loss_pct`: 0.05067
+  - `max_minutes_elapsed`: 10.85
+  - `filter_strike_trend`: True
+- Out-of-Sample (OOS) Results:
+  - Sharpe: 158.65 (exceeds baseline 158.52)
+  - PnL%: 1320.40%
+  - MaxDD: -6.03% (strictly better than -30%)

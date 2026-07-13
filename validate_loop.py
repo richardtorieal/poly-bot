@@ -45,7 +45,9 @@ def run_experiment():
         max_minutes_elapsed=config['strategy']['parameters'].get('max_minutes_elapsed', 999.0),
         filter_strike_trend=config['strategy']['parameters'].get('filter_strike_trend', True),
         volatility_adapt=config['strategy']['parameters'].get('volatility_adapt', False),
-        er_lookback=config['strategy']['parameters'].get('er_lookback')
+        er_lookback=config['strategy']['parameters'].get('er_lookback'),
+        use_ema_filter=config['strategy']['parameters'].get('use_ema_filter', False),
+        ema_span=config['strategy']['parameters'].get('ema_span', 30)
     )
 
     # 1. Run In-Sample

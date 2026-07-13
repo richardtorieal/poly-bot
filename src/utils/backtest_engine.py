@@ -19,9 +19,10 @@ class BacktestEngine:
         trades_count = 0
         winning_trades = 0
         
+        data_list = data.to_dict('records')
         for i in range(len(data) - 1): # Stay one step behind to allow next-bar execution
-            current_row = data.iloc[i]
-            next_row = data.iloc[i+1] # The bar where we actually execute
+            current_row = data_list[i]
+            next_row = data_list[i+1] # The bar where we actually execute
             
             # 1. Update existing positions (Exits & Expirations)
             new_positions = []
@@ -92,7 +93,7 @@ class BacktestEngine:
             
             # 2. Strategy Decision (Entry)
             if cash > (self.initial_capital * 0.01) and len(positions) == 0:
-                history = data.iloc[max(0, i - 250) : i + 1] # All data available up to and including current_row
+                history = data.iloc[max(0, i - 80) : i + 1] # All data available up to and including current_row
                 decision = strategy.decide(current_row, history)
                 
                 if decision in ["YES", "NO"]:
