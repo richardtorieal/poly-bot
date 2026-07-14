@@ -249,3 +249,11 @@ By running a highly focused and exhaustive multi-process Optuna parameter sweep 
   - Sharpe: 158.65 (exceeds baseline 158.52)
   - PnL%: 1320.40%
   - MaxDD: -6.03% (strictly better than -30%)
+
+## Optimization Run (2026-07-14 - Antigravity Trailing Stop)
+### Hypothesis
+By running a focused Optuna sweep around the July 13 baseline parameters and introducing a customized trailing stop-loss (activation at ~0.5%-1.5% profit, with a drawdown trigger of ~0.2%-0.8% from peak ROI), we can lock in profits during minor trend reversals before reaching the full profit target, thereby increasing the Out-of-Sample (OOS) Sharpe Ratio (>158.65) and potentially reducing Max Drawdown while keeping Max Drawdown strictly better than -30%.
+
+### Results
+[Pending optimization run results]
+

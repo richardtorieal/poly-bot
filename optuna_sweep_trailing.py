@@ -28,19 +28,24 @@ def objective(trial):
     config = load_config()
     
     lookback_minutes = 2
-    btc_threshold = trial.suggest_float('btc_threshold', 0.000082, 0.000098)
+    btc_threshold = trial.suggest_float('btc_threshold', 0.000075, 0.000120)
     
     btc_threshold_up = trial.suggest_float('btc_threshold_up', max(0.00005, 0.95 * btc_threshold), 1.05 * btc_threshold)
     low_down = max(0.00005, 0.95 * btc_threshold_up)
     high_down = 1.05 * btc_threshold_up
     btc_threshold_down = trial.suggest_float('btc_threshold_down', low_down, high_down)
     
-    er_threshold = trial.suggest_float('er_threshold', 0.53, 0.57)
+    er_threshold = trial.suggest_float('er_threshold', 0.50, 0.65)
     
-    exit_profit_pct = trial.suggest_float('exit_profit_pct', 0.0135, 0.0175)
-    stop_loss_pct = trial.suggest_float('stop_loss_pct', 0.045, 0.055)
+    # Exit criteria
+    exit_profit_pct = trial.suggest_float('exit_profit_pct', 0.010, 0.022)
+    stop_loss_pct = trial.suggest_float('stop_loss_pct', 0.035, 0.065)
     
-    max_minutes_elapsed = trial.suggest_float('max_minutes_elapsed', 10.5, 11.2)
+    max_minutes_elapsed = trial.suggest_float('max_minutes_elapsed', 9.5, 11.5)
+    
+    # Trailing stop params
+    trailing_stop_activation_pct = trial.suggest_float('trailing_stop_activation_pct', 0.004, exit_profit_pct)
+    trailing_stop_drop_pct = trial.suggest_float('trailing_stop_drop_pct', 0.002, trailing_stop_activation_pct)
     
     pos_size_pct = 0.03
     
@@ -54,7 +59,9 @@ def objective(trial):
         'exit_profit_pct': exit_profit_pct,
         'stop_loss_pct': stop_loss_pct,
         'max_minutes_elapsed': max_minutes_elapsed,
-        'filter_strike_trend': True
+        'filter_strike_trend': True,
+        'trailing_stop_activation_pct': trailing_stop_activation_pct,
+        'trailing_stop_drop_pct': trailing_stop_drop_pct
     }
     
     split_idx = int(len(DF_GLOBAL) * config['backtest']['is_oos_split'])
@@ -89,6 +96,7 @@ def objective(trial):
     trial.set_user_attr('is_pnl', is_results['total_pnl_pct'])
     trial.set_user_attr('oos_pnl', oos_results['total_pnl_pct'])
     trial.set_user_attr('oos_trades', oos_results['total_trades'])
+    trial.set_user_attr('is_trades', is_results['total_trades'])
     
     return is_sharpe
 
@@ -98,13 +106,13 @@ def run_worker(study_name, storage, n_trials):
     study.optimize(objective, n_trials=n_trials)
 
 def main():
-    logger.info("Initializing Optuna fine sweep...")
-    study_name = "btc_trend_opt_fine"
-    storage_url = "sqlite:///optuna_study_fine.db"
+    logger.info("Initializing Optuna sweep with trailing stop-loss...")
+    study_name = "btc_trend_opt_trailing"
+    storage_url = "sqlite:///optuna_study_trailing.db"
     
-    if os.path.exists("optuna_study_fine.db"):
+    if os.path.exists("optuna_study_trailing.db"):
         try:
-            os.remove("optuna_study_fine.db")
+            os.remove("optuna_study_trailing.db")
         except Exception as e:
             logger.warning(f"Could not remove old DB: {e}")
             
@@ -122,14 +130,16 @@ def main():
         'er_threshold': 0.5485,
         'exit_profit_pct': 0.015,
         'stop_loss_pct': 0.05067,
-        'max_minutes_elapsed': 10.85
+        'max_minutes_elapsed': 10.85,
+        'trailing_stop_activation_pct': 0.015,
+        'trailing_stop_drop_pct': 0.015
     }
     study.enqueue_trial(baseline_params)
     logger.info("Evaluating enqueued baseline trial sequentially first...")
     study.optimize(objective, n_trials=1)
     
     num_workers = 6
-    trials_per_worker = 60
+    trials_per_worker = 50
     
     processes = []
     for i in range(num_workers):
@@ -159,7 +169,7 @@ def main():
     print("\n=== TOP 10 TRIALS SORTED BY OOS SHARPE (Drawdown > -30%) ===")
     for i, t in enumerate(valid_trials[:10]):
         print(f"Rank {i+1}: Trial {t.number}")
-        print(f"  IS Sharpe: {t.user_attrs.get('is_sharpe'):.4f} | OOS Sharpe: {t.user_attrs.get('oos_sharpe'):.4f} | OOS MaxDD: {t.user_attrs.get('oos_max_dd')*100:.2f}% | OOS PnL: {t.user_attrs.get('oos_pnl'):.2f}%")
+        print(f"  IS Sharpe: {t.user_attrs.get('is_sharpe'):.4f} | OOS Sharpe: {t.user_attrs.get('oos_sharpe'):.4f} | OOS MaxDD: {t.user_attrs.get('oos_max_dd')*100:.2f}%")
         print("  Params:")
         for k, v in t.params.items():
             print(f"    {k}: {v}")
