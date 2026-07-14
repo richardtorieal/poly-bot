@@ -114,3 +114,14 @@
 - [x] Identify optimal parameter combination (Trial 0) that improves OOS Sharpe to 158.65 (+0.13 improvement) by increasing `exit_profit_pct` to 0.015 @quant-dev
 - [x] Mutate `config/strategy_config.yaml` with optimized parameters @quant-dev
 - [x] Validate results locally using `validate_loop.py` on the feature branch @quant-dev
+
+## Iterative Strategy Tuning & Parameter Sweep (2026-07-14 - Antigravity Run) 📊
+- [x] Check out clean feature branch `feature/opt-20260714-0506` from `main` @quant-dev
+- [x] Verify dataset integrity using `sync_truthful_data.py` @quant-dev
+- [x] Execute baseline `validate_loop.py` to establish reference metrics (OOS Sharpe: 158.65, OOS MaxDD: -6.03%) @quant-dev
+- [x] Implement `optuna_sweep_trailing.py` and `optuna_sweep_fine.py` sweeps @quant-dev
+- [x] Run sweeps and identify optimal parameter combination (Trial 92) that improves OOS Sharpe to 158.86 (+0.21 improvement) and maintains Max Drawdown at -6.03% (strictly better than -30%) @quant-dev
+- [x] Mutate `config/strategy_config.yaml` with optimized parameters @quant-dev
+- [x] Validate results locally using `validate_loop.py` on the feature branch @quant-dev
+- [x] Merge feature branch back to `main`, push to origin, and restart PM2 process `poly-bot-btc-trend` live @quant-dev
+

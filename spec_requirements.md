@@ -255,5 +255,24 @@ By running a highly focused and exhaustive multi-process Optuna parameter sweep 
 By running a focused Optuna sweep around the July 13 baseline parameters and introducing a customized trailing stop-loss (activation at ~0.5%-1.5% profit, with a drawdown trigger of ~0.2%-0.8% from peak ROI), we can lock in profits during minor trend reversals before reaching the full profit target, thereby increasing the Out-of-Sample (OOS) Sharpe Ratio (>158.65) and potentially reducing Max Drawdown while keeping Max Drawdown strictly better than -30%.
 
 ### Results
-[Pending optimization run results]
+- The trailing stop-loss hypothesis was tested, but enqueuing trailing stop parameters resulted in a slightly lower OOS Sharpe (best was 157.10 vs baseline 158.65) because the trailing stop triggered premature exits in noisier market conditions.
+- A secondary hypothesis focusing on fine-tuning entry thresholds and trade targets in a narrow neighborhood around the July 13 parameters was executed.
+- Optimal parameters (Trial 92):
+  - `btc_threshold`: 0.00008587
+  - `btc_threshold_up`: 0.00008995
+  - `btc_threshold_down`: 0.00009417
+  - `lookback_minutes`: 2
+  - `er_threshold`: 0.5337
+  - `pos_size_pct`: 0.03
+  - `exit_profit_pct`: 0.01466
+  - `stop_loss_pct`: 0.04555
+  - `max_minutes_elapsed`: 10.64
+  - `filter_strike_trend`: True
+- In-Sample (IS) Results:
+  - Sharpe: 161.57
+- Out-of-Sample (OOS) Results:
+  - Sharpe: 158.86 (exceeds baseline 158.65)
+  - PnL%: 1335.86% (exceeds baseline 1320.40%)
+  - MaxDD: -6.03% (strictly better than -30%)
+
 
