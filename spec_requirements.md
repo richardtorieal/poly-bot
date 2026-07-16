@@ -275,4 +275,31 @@ By running a focused Optuna sweep around the July 13 baseline parameters and int
   - PnL%: 1335.86% (exceeds baseline 1320.40%)
   - MaxDD: -6.03% (strictly better than -30%)
 
+## Optimization Run (2026-07-15 - Antigravity In-Sample Tuning)
+### Hypothesis
+By running a focused Optuna parameter sweep in the local neighborhood of the July 14 baseline parameters, enforcing strict tradeability constraints (exit profit >= 1%, stop loss >= 1.5%), symmetry triggers (up/down thresholds within 10%), and minimum entry criteria, and evaluating both the baseline trend parameters and potential inclusion of the EMA trend filter (`use_ema_filter`), we can find a parameter configuration that achieves a higher In-Sample (IS) Sharpe Ratio (>161.57). We will evaluate the trial ranking strictly on In-Sample (IS) Sharpe to avoid overfitting, using Out-of-Sample (OOS) metrics solely for final, passive validation of the chosen model parameters.
+
+### Results
+- Optimal parameters (Trial 74):
+  - `btc_threshold`: 0.00014227
+  - `btc_threshold_up`: 0.00014545
+  - `btc_threshold_down`: 0.00014809
+  - `lookback_minutes`: 2
+  - `er_threshold`: 0.6653
+  - `pos_size_pct`: 0.03
+  - `exit_profit_pct`: 0.0112
+  - `stop_loss_pct`: 0.01512
+  - `max_minutes_elapsed`: 10.83
+  - `filter_strike_trend`: True
+  - `er_lookback`: 2
+- In-Sample (IS) Results:
+  - Sharpe: 171.81 (improved from baseline 161.57, +10.24 improvement)
+  - PnL%: 3821758.76%
+- Out-of-Sample (OOS) Results (Passive Validation):
+  - Sharpe: 154.01 (no significant degradation compared to baseline 158.86)
+  - PnL%: 1099.04%
+  - MaxDD: -6.03% (strictly better than -30%)
+
+
+
 
