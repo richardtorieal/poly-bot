@@ -133,6 +133,6 @@
 - [x] Run sweeps and identify optimal parameter combination (Trial 74) that improves IS Sharpe to 171.81 (+10.24 improvement) and passively validates with OOS Sharpe of 154.01 and OOS MaxDD of -6.03% @quant-dev
 - [x] Mutate `config/strategy_config.yaml` with optimized parameters @quant-dev
 - [x] Validate results locally using `validate_loop.py` on the feature branch @quant-dev
-- [ ] Merge feature branch back to `main`, push to origin, and restart PM2 process `poly-bot-btc-trend` live @quant-dev
+- [x] Merge feature branch back to `main`, push to origin, and restart PM2 process `poly-bot-btc-trend` live @quant-dev
 
 
