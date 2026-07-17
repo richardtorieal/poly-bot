@@ -29,12 +29,11 @@ def load_config():
 def objective(trial):
     config = load_config()
     
-    # 1. Lookback window
-    lookback_minutes = trial.suggest_int('lookback_minutes', 2, 4)
-    er_lookback = trial.suggest_int('er_lookback', lookback_minutes, lookback_minutes + 6)
+    lookback_minutes = 2
+    er_lookback = 2
     
-    # 2. Threshold search space with strict constraints
-    btc_threshold = trial.suggest_float('btc_threshold', 0.00005, 0.00025)
+    # 2. Narrow Threshold search space around the baseline
+    btc_threshold = trial.suggest_float('btc_threshold', 0.00012, 0.00017)
     
     # Enforce btc_threshold_up >= 0.00005 and within 10% of btc_threshold
     btc_threshold_up = trial.suggest_float('btc_threshold_up', max(0.00005, 0.955 * btc_threshold), 1.045 * btc_threshold)
@@ -44,20 +43,17 @@ def objective(trial):
     high_down = 1.045 * btc_threshold_up
     btc_threshold_down = trial.suggest_float('btc_threshold_down', low_down, high_down)
     
-    # er_threshold >= 0.50
-    er_threshold = trial.suggest_float('er_threshold', 0.50, 0.95)
+    # er_threshold in a narrow range around 0.6653
+    er_threshold = trial.suggest_float('er_threshold', 0.60, 0.75)
     
-    # Exit profit target >= 1.0% (0.01)
-    exit_profit_pct = trial.suggest_float('exit_profit_pct', 0.010, 0.035)
+    # exit_profit_pct in a narrow range around 0.0112
+    exit_profit_pct = trial.suggest_float('exit_profit_pct', 0.010, 0.014)
     
-    # Stop loss >= 1.5% (0.015)
-    stop_loss_pct = trial.suggest_float('stop_loss_pct', 0.015, 0.080)
+    # stop_loss_pct in a narrow range around 0.01512
+    stop_loss_pct = trial.suggest_float('stop_loss_pct', 0.015, 0.022)
     
-    max_minutes_elapsed = trial.suggest_float('max_minutes_elapsed', 8.0, 15.0)
-    
-    # EMA trend filter
-    use_ema_filter = trial.suggest_categorical('use_ema_filter', [True, False])
-    ema_span = trial.suggest_int('ema_span', 10, 120)
+    # max_minutes_elapsed in a narrow range around 10.83
+    max_minutes_elapsed = trial.suggest_float('max_minutes_elapsed', 9.5, 11.5)
     
     pos_size_pct = 0.03
     
@@ -73,8 +69,8 @@ def objective(trial):
         'stop_loss_pct': stop_loss_pct,
         'max_minutes_elapsed': max_minutes_elapsed,
         'filter_strike_trend': True,
-        'use_ema_filter': use_ema_filter,
-        'ema_span': ema_span
+        'use_ema_filter': False,
+        'ema_span': 30
     }
     
     split_idx = int(len(DF_GLOBAL) * config['backtest']['is_oos_split'])
@@ -96,8 +92,8 @@ def objective(trial):
         filter_strike_trend=True,
         volatility_adapt=False,
         er_lookback=er_lookback,
-        use_ema_filter=use_ema_filter,
-        ema_span=ema_span
+        use_ema_filter=False,
+        ema_span=30
     )
     
     is_results = engine.run(strategy, df_is, params)
@@ -123,13 +119,13 @@ def run_worker(study_name, storage, n_trials):
     study.optimize(objective, n_trials=n_trials)
 
 def main():
-    logger.info("Initializing In-Sample optimized Optuna sweep...")
-    study_name = "btc_trend_opt_is"
-    storage_url = "sqlite:///optuna_study_is.db"
+    logger.info("Initializing Fine-Tuned In-Sample optimized Optuna sweep...")
+    study_name = "btc_trend_opt_fine"
+    storage_url = "sqlite:///optuna_study_fine.db"
     
-    if os.path.exists("optuna_study_is.db"):
+    if os.path.exists("optuna_study_fine.db"):
         try:
-            os.remove("optuna_study_is.db")
+            os.remove("optuna_study_fine.db")
         except Exception as e:
             logger.warning(f"Could not remove old DB: {e}")
             
@@ -141,17 +137,13 @@ def main():
     
     # Enqueue baseline parameters (July 15 parameters)
     baseline_params = {
-        'lookback_minutes': 2,
-        'er_lookback': 2,
         'btc_threshold': 0.00014227,
         'btc_threshold_up': 0.00014545,
         'btc_threshold_down': 0.00014809,
         'er_threshold': 0.6653,
         'exit_profit_pct': 0.0112,
         'stop_loss_pct': 0.01512,
-        'max_minutes_elapsed': 10.83,
-        'use_ema_filter': False,
-        'ema_span': 30
+        'max_minutes_elapsed': 10.83
     }
     study.enqueue_trial(baseline_params)
     logger.info("Evaluating enqueued baseline trial sequentially first...")
@@ -181,8 +173,6 @@ def main():
         if t.state != optuna.trial.TrialState.COMPLETE:
             continue
         
-        # Enforce that btc_threshold_up and btc_threshold_down must be within 10% of each other
-        # and all constraints are strictly satisfied
         p = t.params
         up = p.get('btc_threshold_up')
         down = p.get('btc_threshold_down')
@@ -209,10 +199,10 @@ def main():
             
         valid_trials.append(t)
             
-    # Sort strictly by In-Sample (IS) Sharpe to respect NO OVERFITTING OOS rule
+    # Sort strictly by In-Sample (IS) Sharpe
     valid_trials.sort(key=lambda x: x.user_attrs.get('is_sharpe', 0.0), reverse=True)
     
-    print("\n=== TOP 15 TRIALS SORTED BY IS SHARPE (Satisfying Constraints) ===")
+    print("\n=== TOP 15 FINE-TUNED TRIALS SORTED BY IS SHARPE (Satisfying Constraints) ===")
     for i, t in enumerate(valid_trials[:15]):
         print(f"Rank {i+1}: Trial {t.number}")
         print(f"  IS Sharpe: {t.user_attrs.get('is_sharpe'):.4f} | IS PnL: {t.user_attrs.get('is_pnl'):.2f}% | IS Trades: {t.user_attrs.get('is_trades')}")

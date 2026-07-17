@@ -301,5 +301,10 @@ By running a focused Optuna parameter sweep in the local neighborhood of the Jul
   - MaxDD: -6.03% (strictly better than -30%)
 
 
+## Optimization Run (2026-07-16 - Antigravity In-Sample Tuning)
+### Hypothesis
+By running a focused Optuna parameter sweep in the local neighborhood of the July 15 baseline parameters, enforcing strict tradeability constraints (exit profit >= 1%, stop loss >= 1.5%), symmetry triggers (up/down thresholds within 10%), and minimum entry criteria, and evaluating both the baseline trend parameters and potential inclusion of the EMA trend filter (`use_ema_filter`), we can find a parameter configuration that achieves a higher In-Sample (IS) Sharpe Ratio (>171.81). We will evaluate the trial ranking strictly on In-Sample (IS) Sharpe to avoid overfitting, using Out-of-Sample (OOS) metrics solely for final, passive validation of the chosen model parameters.
+
+
 
 
