@@ -328,3 +328,29 @@ By running a focused Optuna parameter sweep in the local neighborhood of the Jul
 ## Optimization Run (2026-07-17 - Antigravity In-Sample Tuning)
 ### Hypothesis
 By running a focused Optuna parameter sweep in the neighborhood of the July 16 baseline parameters, enforcing strict tradeability constraints (exit profit >= 1%, stop loss >= 1.5%), symmetry triggers (up/down thresholds within 10%), and minimum entry criteria, and evaluating the baseline trend parameters, potential inclusion of the EMA trend filter (`use_ema_filter`), and lookback/elapsed time parameters, we can find a parameter configuration that achieves a higher In-Sample (IS) Sharpe Ratio (>172.70). We will evaluate the trial ranking strictly on In-Sample (IS) Sharpe to avoid overfitting, using Out-of-Sample (OOS) metrics solely for final, passive validation of the chosen model parameters.
+
+## Optimization Run (2026-07-20 - Antigravity In-Sample Tuning)
+### Hypothesis
+By running a focused Optuna parameter sweep in the neighborhood of the July 18 baseline parameters, enforcing strict tradeability constraints (exit profit >= 1%, stop loss >= 1.5%), symmetry triggers (up/down thresholds within 10%), and minimum entry criteria (threshold >= 0.00005, er_threshold >= 0.50), and evaluating the baseline trend parameters, potential inclusion of the EMA trend filter (`use_ema_filter`), and lookback/elapsed time parameters, we can find a parameter configuration that achieves a higher In-Sample (IS) Sharpe Ratio (>172.89). We will evaluate the trial ranking strictly on In-Sample (IS) Sharpe to avoid overfitting, using Out-of-Sample (OOS) metrics solely for final, passive validation of the chosen model parameters.
+
+### Results
+- Optimal parameters (Trial 249):
+  - `btc_threshold`: 0.0001258696857686756
+  - `btc_threshold_up`: 0.00013373575933865096
+  - `btc_threshold_down`: 0.0001441505880256112
+  - `lookback_minutes`: 2
+  - `er_threshold`: 0.9247299623040203
+  - `pos_size_pct`: 0.03
+  - `exit_profit_pct`: 0.010636236657735214
+  - `stop_loss_pct`: 0.018833502269120946
+  - `max_minutes_elapsed`: 10.701785531153359
+  - `filter_strike_trend`: True
+  - `er_lookback`: 2
+- In-Sample (IS) Results:
+  - Sharpe: 173.05 (improved from baseline 172.89)
+- Out-of-Sample (OOS) Results (Passive Validation):
+  - Sharpe: 154.15 (no significant degradation compared to baseline 154.40)
+  - PnL%: 1158.00%
+  - MaxDD: -6.03% (strictly better than -30%)
+
+
