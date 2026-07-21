@@ -3433,3 +3433,69 @@
       MaxDD: -6.03%
     ---------------------------------------------------
     
+    DATE: 2026-07-21 07:53:22
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.0001258696857686756, 'btc_threshold_up': 0.00013373575933865096, 'btc_threshold_down': 0.0001441505880256112, 'lookback_minutes': 2, 'er_threshold': 0.9247299623040203, 'pos_size_pct': 0.03, 'exit_profit_pct': 0.010636236657735214, 'stop_loss_pct': 0.018833502269120946, 'max_minutes_elapsed': 10.701785531153359, 'filter_strike_trend': True, 'er_lookback': 2}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 56955561.12%
+      Win Rate: 82.7%
+      Sharpe: 169.82
+      Trades: 4443
+
+    IN-SAMPLE (IS):
+      PnL%: 4262393.98%
+      Win Rate: 82.7%
+      Sharpe: 173.05
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 1158.00%
+      Win Rate: 82.4%
+      Sharpe: 154.15
+      MaxDD: -6.03%
+    ---------------------------------------------------
+    
+    DATE: 2026-07-21 07:57:11
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.0001258696857686756, 'btc_threshold_up': 0.00013373575933865096, 'btc_threshold_down': 0.0001441505880256112, 'lookback_minutes': 2, 'er_threshold': 0.9247299623040203, 'pos_size_pct': 0.03, 'exit_profit_pct': 0.010636236657735214, 'stop_loss_pct': 0.018833502269120946, 'max_minutes_elapsed': 10.701785531153359, 'filter_strike_trend': True, 'er_lookback': 2, 'volatility_adapt': True}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 71816840.29%
+      Win Rate: 81.5%
+      Sharpe: 169.27
+      Trades: 4714
+
+    IN-SAMPLE (IS):
+      PnL%: 5141021.02%
+      Win Rate: 81.2%
+      Sharpe: 171.89
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 1215.15%
+      Win Rate: 82.7%
+      Sharpe: 155.63
+      MaxDD: -6.03%
+    ---------------------------------------------------
+    
+    DATE: 2026-07-21 08:04:30
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.00012878763477875785, 'btc_threshold_up': 0.00013621642786457492, 'btc_threshold_down': 0.0001442843815875098, 'lookback_minutes': 2, 'er_threshold': 0.9337933020672892, 'pos_size_pct': 0.03, 'exit_profit_pct': 0.012062799630784467, 'stop_loss_pct': 0.01893268344781407, 'max_minutes_elapsed': 10.634904027311073, 'filter_strike_trend': True, 'er_lookback': 2}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 57837138.17%
+      Win Rate: 82.8%
+      Sharpe: 169.81
+      Trades: 4424
+
+    IN-SAMPLE (IS):
+      PnL%: 4337157.17%
+      Win Rate: 82.8%
+      Sharpe: 173.07
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 1155.45%
+      Win Rate: 82.3%
+      Sharpe: 153.98
+      MaxDD: -6.03%
+    ---------------------------------------------------
+    
