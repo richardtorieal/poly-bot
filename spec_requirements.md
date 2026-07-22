@@ -354,3 +354,30 @@ By running a focused Optuna parameter sweep in the neighborhood of the July 18 b
   - MaxDD: -6.03% (strictly better than -30%)
 
 
+## Optimization Run (2026-07-21 - Antigravity In-Sample Tuning)
+### Results (Baseline Trial 88)
+- Optimal parameters (Trial 88):
+  - `btc_threshold`: 0.00012878763477875785
+  - `btc_threshold_up`: 0.00013621642786457492
+  - `btc_threshold_down`: 0.0001442843815875098
+  - `lookback_minutes`: 2
+  - `er_threshold`: 0.9337933020672892
+  - `pos_size_pct`: 0.03
+  - `exit_profit_pct`: 0.012062799630784467
+  - `stop_loss_pct`: 0.01893268344781407
+  - `max_minutes_elapsed`: 10.634904027311073
+  - `filter_strike_trend`: True
+  - `er_lookback`: 2
+- In-Sample (IS) Results:
+  - Sharpe: 173.07 (improved from baseline 173.05)
+- Out-of-Sample (OOS) Results (Passive Validation):
+  - Sharpe: 153.98
+  - PnL%: 1155.45%
+  - MaxDD: -6.03% (strictly better than -30%)
+
+## Optimization Run (2026-07-21 Iteration 2 - Antigravity Local Optimization)
+### Hypothesis
+By running a highly focused Optuna parameter sweep in the local neighborhood of the baseline parameters (Trial 88), enforcing strict tradeability constraints (exit profit >= 1%, stop loss >= 1.5%), symmetry triggers (up/down thresholds within 10%), and minimum entry criteria (threshold >= 0.00005, er_threshold >= 0.50), we can find a parameter configuration that achieves a higher In-Sample (IS) Sharpe Ratio (>173.07). We will evaluate the trial ranking strictly on In-Sample (IS) Sharpe to avoid overfitting, using Out-of-Sample (OOS) metrics solely for final, passive validation of the chosen model parameters.
+
+
+

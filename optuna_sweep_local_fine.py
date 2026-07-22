@@ -29,30 +29,36 @@ def load_config():
 def objective(trial):
     config = load_config()
     
+    # Focused search space around the baseline
     lookback_minutes = 2
-    er_lookback = 2
+    er_lookback = trial.suggest_int('er_lookback', 2, 3)
     
-    # Very narrow search space around current main parameters
-    btc_threshold = trial.suggest_float('btc_threshold', 0.000115, 0.000135)
+    # 2. Threshold search space with strict constraints
+    # Baseline btc_threshold_up ~ 0.0001362, btc_threshold_down ~ 0.0001443
+    btc_threshold_up = trial.suggest_float('btc_threshold_up', 0.00010, 0.00018)
     
-    # Enforce constraints
-    btc_threshold_up = trial.suggest_float('btc_threshold_up', max(0.00005, 0.93 * btc_threshold), 1.07 * btc_threshold)
-    
+    # Enforce btc_threshold_down is within 10% of btc_threshold_up
     low_down = max(0.00005, 0.91 * btc_threshold_up)
     high_down = 1.09 * btc_threshold_up
     btc_threshold_down = trial.suggest_float('btc_threshold_down', low_down, high_down)
     
-    # er_threshold around 0.9247
-    er_threshold = trial.suggest_float('er_threshold', 0.88, 0.96)
+    btc_threshold = (btc_threshold_up + btc_threshold_down) / 2.0
     
-    # exit_profit_pct around 0.0106
-    exit_profit_pct = trial.suggest_float('exit_profit_pct', 0.0100, 0.0125)
+    # er_threshold >= 0.50 (Baseline ~0.9338)
+    er_threshold = trial.suggest_float('er_threshold', 0.80, 0.97)
     
-    # stop_loss_pct around 0.0188
-    stop_loss_pct = trial.suggest_float('stop_loss_pct', 0.0150, 0.0220)
+    # Exit profit target >= 1.0% (0.01) (Baseline ~0.01206)
+    exit_profit_pct = trial.suggest_float('exit_profit_pct', 0.010, 0.018)
     
-    # max_minutes_elapsed around 10.70
-    max_minutes_elapsed = trial.suggest_float('max_minutes_elapsed', 10.0, 11.4)
+    # Stop loss >= 1.5% (0.015) (Baseline ~0.01893)
+    stop_loss_pct = trial.suggest_float('stop_loss_pct', 0.015, 0.028)
+    
+    # Max minutes elapsed (Baseline ~10.63)
+    max_minutes_elapsed = trial.suggest_float('max_minutes_elapsed', 9.0, 12.0)
+    
+    # EMA trend filter
+    use_ema_filter = trial.suggest_categorical('use_ema_filter', [True, False])
+    ema_span = trial.suggest_int('ema_span', 20, 60)
     
     pos_size_pct = 0.03
     
@@ -68,8 +74,8 @@ def objective(trial):
         'stop_loss_pct': stop_loss_pct,
         'max_minutes_elapsed': max_minutes_elapsed,
         'filter_strike_trend': True,
-        'use_ema_filter': False,
-        'ema_span': 30
+        'use_ema_filter': use_ema_filter,
+        'ema_span': ema_span
     }
     
     split_idx = int(len(DF_GLOBAL) * config['backtest']['is_oos_split'])
@@ -91,8 +97,8 @@ def objective(trial):
         filter_strike_trend=True,
         volatility_adapt=False,
         er_lookback=er_lookback,
-        use_ema_filter=False,
-        ema_span=30
+        use_ema_filter=use_ema_filter,
+        ema_span=ema_span
     )
     
     is_results = engine.run(strategy, df_is, params)
@@ -118,13 +124,13 @@ def run_worker(study_name, storage, n_trials):
     study.optimize(objective, n_trials=n_trials)
 
 def main():
-    logger.info("Initializing Local Fine In-Sample Optuna sweep...")
-    study_name = "btc_trend_opt_local_fine"
-    storage_url = "sqlite:///optuna_study_local_fine.db"
+    logger.info("Initializing In-Sample local fine Optuna sweep...")
+    study_name = "btc_trend_opt_local_fine_2"
+    storage_url = "sqlite:///optuna_study_local_fine_2.db"
     
-    if os.path.exists("optuna_study_local_fine.db"):
+    if os.path.exists("optuna_study_local_fine_2.db"):
         try:
-            os.remove("optuna_study_local_fine.db")
+            os.remove("optuna_study_local_fine_2.db")
         except Exception as e:
             logger.warning(f"Could not remove old DB: {e}")
             
@@ -134,22 +140,24 @@ def main():
         direction="maximize"
     )
     
-    # Enqueue baseline parameters (the current main parameters)
+    # Enqueue baseline parameters
     baseline_params = {
-        'btc_threshold': 0.0001258696857686756,
-        'btc_threshold_up': 0.00013373575933865096,
-        'btc_threshold_down': 0.0001441505880256112,
-        'er_threshold': 0.9247299623040203,
-        'exit_profit_pct': 0.010636236657735214,
-        'stop_loss_pct': 0.018833502269120946,
-        'max_minutes_elapsed': 10.701785531153359
+        'er_lookback': 2,
+        'btc_threshold_up': 0.00013621642786457492,
+        'btc_threshold_down': 0.0001442843815875098,
+        'er_threshold': 0.9337933020672892,
+        'exit_profit_pct': 0.012062799630784467,
+        'stop_loss_pct': 0.01893268344781407,
+        'max_minutes_elapsed': 10.634904027311073,
+        'use_ema_filter': False,
+        'ema_span': 30
     }
     study.enqueue_trial(baseline_params)
     logger.info("Evaluating enqueued baseline trial sequentially first...")
     study.optimize(objective, n_trials=1)
     
     num_workers = 6
-    trials_per_worker = 40
+    trials_per_worker = 50
     
     logger.info(f"Spawning {num_workers} parallel workers to run {trials_per_worker} trials each (total {num_workers * trials_per_worker} trials)...")
     
@@ -182,7 +190,7 @@ def main():
         ratio1 = up / down
         ratio2 = down / up
         
-        # Verify symmetry constraint
+        # Verify symmetry constraint (within 10%)
         if ratio1 > 1.10 or ratio2 > 1.10:
             continue
             
@@ -210,6 +218,6 @@ def main():
         for k, v in t.params.items():
             print(f"    {k}: {v}")
         print("-" * 50)
-        
+
 if __name__ == "__main__":
     main()
