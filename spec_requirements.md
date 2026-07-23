@@ -390,5 +390,27 @@ By running a highly focused local fine-tuning Optuna sweep (300 trials) and a br
 - Both the local fine sweep and the custom sweep verified that the baseline parameters (Trial 0) remain the optimal configuration (IS Sharpe 173.07) under all mandated constraints.
 - No parameter combinations achieved an IS Sharpe exceeding 173.07. Consequently, the feature branch was discarded, and the current strategy parameters were retained.
 
+## Optimization Run (2026-07-23 - Antigravity In-Sample Tuning)
+### Hypothesis
+By running a focused, parallel Optuna parameter sweep around the baseline parameters, enforcing strict tradeability constraints (exit profit >= 1%, stop loss >= 1.5%), symmetry triggers (up/down thresholds within 10%), and minimum entry criteria (threshold >= 0.00005, er_threshold >= 0.50), we can find a parameter configuration that achieves a higher In-Sample (IS) Sharpe Ratio (>173.07). We will evaluate the trial ranking strictly on In-Sample (IS) Sharpe to avoid overfitting, using Out-of-Sample (OOS) metrics solely for final, passive validation.
 
-
+### Results
+- Optimal parameters (Trial from parallel search):
+  - `btc_threshold`: 0.00013361118104529958
+  - `btc_threshold_up`: 0.00013361118104529958
+  - `btc_threshold_down`: 0.00014411005116773347
+  - `lookback_minutes`: 2
+  - `er_threshold`: 0.8431436827871925
+  - `pos_size_pct`: 0.03
+  - `exit_profit_pct`: 0.01196291304379161
+  - `stop_loss_pct`: 0.018321002465024855
+  - `max_minutes_elapsed`: 10.335172332284145
+  - `filter_strike_trend`: True
+  - `er_lookback`: 2
+- In-Sample (IS) Results:
+  - Sharpe: 173.20 (improved from baseline 173.07)
+  - PnL%: 4352370.48% (improved from baseline 4337157.17%)
+- Out-of-Sample (OOS) Results (Passive Validation):
+  - Sharpe: 154.36 (improved from baseline 153.98)
+  - PnL%: 1163.42% (improved from baseline 1155.45%)
+  - MaxDD: -6.03% (strictly better than -30%)
