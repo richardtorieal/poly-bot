@@ -379,5 +379,16 @@ By running a focused Optuna parameter sweep in the neighborhood of the July 18 b
 ### Hypothesis
 By running a highly focused Optuna parameter sweep in the local neighborhood of the baseline parameters (Trial 88), enforcing strict tradeability constraints (exit profit >= 1%, stop loss >= 1.5%), symmetry triggers (up/down thresholds within 10%), and minimum entry criteria (threshold >= 0.00005, er_threshold >= 0.50), we can find a parameter configuration that achieves a higher In-Sample (IS) Sharpe Ratio (>173.07). We will evaluate the trial ranking strictly on In-Sample (IS) Sharpe to avoid overfitting, using Out-of-Sample (OOS) metrics solely for final, passive validation of the chosen model parameters.
 
+### Results
+- The baseline parameters (Trial 0) remained the optimal configuration (IS Sharpe 173.07). The local sweep did not yield any parameter combinations that outperformed the baseline. The feature branch was discarded.
+
+## Optimization Run (2026-07-22 - Antigravity In-Sample Tuning)
+### Hypothesis
+By running a highly focused local fine-tuning Optuna sweep (300 trials) and a broader custom sweep (180 trials) around the current baseline parameters, enforcing strict tradeability constraints (exit profit >= 1%, stop loss >= 1.5%), symmetry triggers (up/down thresholds within 10%), and minimum entry criteria (threshold >= 0.00005, er_threshold >= 0.50), we can find a parameter configuration that achieves a higher In-Sample (IS) Sharpe Ratio (>173.07). We will evaluate the trial ranking strictly on In-Sample (IS) Sharpe to avoid overfitting, using Out-of-Sample (OOS) metrics solely for final, passive validation of the chosen parameters.
+
+### Results
+- Both the local fine sweep and the custom sweep verified that the baseline parameters (Trial 0) remain the optimal configuration (IS Sharpe 173.07) under all mandated constraints.
+- No parameter combinations achieved an IS Sharpe exceeding 173.07. Consequently, the feature branch was discarded, and the current strategy parameters were retained.
+
 
 

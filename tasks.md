@@ -192,3 +192,11 @@
 - [x] Implement optimized `optuna_sweep_local_fine.py` strictly optimizing on In-Sample (IS) Sharpe and enforcing constraints @quant-dev
 - [x] Run sweeps and identify that the baseline parameters (Trial 0) remain the optimal local configuration (IS Sharpe 173.07) @quant-dev
 - [x] Discard the feature branch and revert to `main` as no improvement was found @quant-dev
+
+## Iterative Strategy Tuning & Parameter Sweep (2026-07-22 - Antigravity Run) 📊
+- [x] Check out feature branch `feature/opt-20260722-2000` from `main` @quant-dev
+- [x] Verify dataset integrity using `sync_truthful_data.py` @quant-dev
+- [x] Execute baseline `validate_loop.py` to establish reference metrics (IS Sharpe: 173.07, OOS Sharpe: 153.98, OOS MaxDD: -6.03%) @quant-dev
+- [x] Run local fine sweep and custom broader search sweep strictly optimizing on In-Sample (IS) Sharpe and enforcing constraints @quant-dev
+- [x] Verify that the baseline parameters remain the optimal configuration (IS Sharpe 173.07) @quant-dev
+- [x] Discard the feature branch and revert to `main` as no improvement was found @quant-dev
