@@ -3565,3 +3565,25 @@
       MaxDD: -6.03%
     ---------------------------------------------------
     
+    DATE: 2026-07-24 20:00:46
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.00013361118104529958, 'btc_threshold_up': 0.00013361118104529958, 'btc_threshold_down': 0.00014411005116773346, 'lookback_minutes': 2, 'er_threshold': 0.8431436827871925, 'pos_size_pct': 0.03, 'exit_profit_pct': 0.01196291304379161, 'stop_loss_pct': 0.018321002465024855, 'max_minutes_elapsed': 10.335172332284145, 'filter_strike_trend': True, 'er_lookback': 2}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 58408564.52%
+      Win Rate: 82.7%
+      Sharpe: 169.99
+      Trades: 4438
+
+    IN-SAMPLE (IS):
+      PnL%: 4352370.48%
+      Win Rate: 82.8%
+      Sharpe: 173.20
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 1163.42%
+      Win Rate: 82.4%
+      Sharpe: 154.36
+      MaxDD: -6.03%
+    ---------------------------------------------------
+    

@@ -431,4 +431,24 @@ By running a focused and parallel Optuna parameter sweep (480 trials total) in t
 - A focused 480-trial sweep and a subsequent wider 600-trial sweep both confirmed that no parameter configuration outperformed the baseline configuration on In-Sample Sharpe while respecting all constraints.
 - Consequently, the feature branch `feature/opt-20260724-0801` was discarded, and the current strategy parameters were retained.
 
+## Optimization Run (2026-07-24 - Iteration 2 - Antigravity In-Sample Tuning)
+### Hypothesis
+By running a focused, parallel Optuna parameter sweep (500 trials total) in the neighborhood of the current baseline parameters (IS Sharpe: 173.20), enforcing all strict constraints (up/down triggers within 10%, threshold >= 0.00005, er_threshold >= 0.50, exit_profit_pct >= 1.0%, stop_loss_pct >= 1.5%), we can explore a targeted search space (e.g. searching wider ranges for max_minutes_elapsed, lookback_minutes in [2, 3], and exit parameters) to find a parameter configuration that improves the In-Sample (IS) Sharpe Ratio (>173.20). OOS metrics will be passively validated.
+
+### Results
+- The baseline parameters (Trial 0) remained the optimal configuration (IS Sharpe 173.20, OOS Sharpe 154.36, OOS MaxDD -6.03%).
+- Consequently, no new optimal parameters were found in Iteration 2.
+
+## Optimization Run (2026-07-24 - Iteration 3 - Antigravity Local Fine-Tuning)
+### Hypothesis
+By running a highly focused local Optuna parameter sweep (400 trials total) strictly in the narrow neighborhood (+/- 10%) of the baseline parameters (fixed lookback_minutes=2, er_lookback=2, and use_ema_filter=False), we can find a parameter combination that achieves a higher In-Sample (IS) Sharpe Ratio (>173.20) by tuning entry thresholds, efficiency ratios, exit profits, and stop losses more precisely. OOS metrics will be passively validated.
+
+### Results
+- The baseline parameters (Trial 0) remained the optimal configuration (IS Sharpe 173.20, OOS Sharpe 154.36, OOS MaxDD -6.03%).
+- A highly focused 400-trial sweep confirmed that no parameter configuration outperformed the baseline configuration on In-Sample Sharpe while respecting all constraints.
+- Consequently, the feature branch `feature/opt-20260724-2000` was discarded, and the current strategy parameters were retained.
+
+
+
+
 
