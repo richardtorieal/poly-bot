@@ -448,6 +448,16 @@ By running a highly focused local Optuna parameter sweep (400 trials total) stri
 - A highly focused 400-trial sweep confirmed that no parameter configuration outperformed the baseline configuration on In-Sample Sharpe while respecting all constraints.
 - Consequently, the feature branch `feature/opt-20260724-2000` was discarded, and the current strategy parameters were retained.
 
+## Optimization Run (2026-07-27 - Antigravity In-Sample Tuning)
+### Hypothesis
+By running a parallel Optuna parameter sweep in the local neighborhood (+/- 15%) of the current baseline parameters (from the July 23 run, IS Sharpe: 173.20), enforcing all strict constraints (up/down triggers within 10%, threshold >= 0.00005, er_threshold >= 0.50, exit_profit_pct >= 1.0%, stop_loss_pct >= 1.5%), we can explore a targeted search space (e.g. er_threshold in [0.75, 0.95], exit_profit_pct in [0.010, 0.015], stop_loss_pct in [0.015, 0.025], max_minutes_elapsed in [9.0, 12.0], er_lookback in [2, 3]) to find a parameter configuration that improves the In-Sample (IS) Sharpe Ratio (>173.20). OOS metrics will be passively validated.
+
+### Results
+- Both the custom local sweep (600 trials) and the wide sweep (600 trials, searching lookback_minutes [2-5] and er_lookback [2-5]) confirmed that the baseline parameters (Trial 0) remain the optimal configuration (IS Sharpe: 173.20, OOS Sharpe: 154.36, OOS MaxDD: -6.03%).
+- No new parameter combination outperformed the baseline on In-Sample Sharpe while respecting all mandated constraints (up/down thresholds within 10%, threshold >= 0.00005, er_threshold >= 0.50, exit_profit_pct >= 1.0%, stop_loss_pct >= 1.5%).
+- Consequently, the feature branch was discarded and no changes were promoted to main.
+
+
 
 
 
