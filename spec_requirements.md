@@ -466,6 +466,15 @@ By running a parallel Optuna parameter sweep (500 trials total) strictly optimiz
 - A parallel 510-trial Optuna sweep (6 workers * 85 trials) confirmed that no new parameter combination outperformed the baseline configuration on In-Sample Sharpe while respecting all mandated constraints (up/down thresholds within 10% symmetry, threshold >= 0.00005, er_threshold >= 0.50, exit_profit_pct >= 1.0%, stop_loss_pct >= 1.5%).
 - Consequently, the feature branch was discarded and the current baseline parameters were retained.
 
+## Optimization Run (2026-07-30 - Antigravity In-Sample Tuning)
+### Hypothesis
+By running a highly parallel Optuna sweep (600 trials total) strictly optimizing on In-Sample (IS) Sharpe, enforcing the symmetry constraint (btc_threshold_up and btc_threshold_down within 10%), minimum constraints (btc_threshold_up/down >= 0.00005, er_threshold >= 0.50, exit_profit_pct >= 1.0%, stop_loss_pct >= 1.5%), and exploring the narrow local neighborhood of the current baseline parameters (IS Sharpe: 173.20) with fine-tuned resolution, we can identify a parameter configuration that achieves a higher In-Sample (IS) Sharpe Ratio (>173.20). Out-of-Sample (OOS) metrics will be passively validated.
+
+### Results
+- The baseline parameters (Trial 0) remained the optimal configuration (IS Sharpe 173.20, OOS Sharpe 154.36, OOS MaxDD -6.03%).
+- A parallel 600-trial Optuna sweep (6 workers * 100 trials) confirmed that no new parameter combination outperformed the baseline configuration on In-Sample Sharpe while respecting all mandated constraints (up/down thresholds within 10% symmetry, threshold >= 0.00005, er_threshold >= 0.50, exit_profit_pct >= 1.0%, stop_loss_pct >= 1.5%).
+- Consequently, the feature branch was discarded and the current baseline parameters were retained.
+
 
 
 
