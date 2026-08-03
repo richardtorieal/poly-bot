@@ -503,6 +503,17 @@ By running a highly parallel Optuna sweep (400 trials total) strictly optimizing
 - Consequently, the feature branch was discarded and the current baseline parameters were retained.
 
 
+## Optimization Run (2026-08-02 Iteration 2 - Antigravity In-Sample Tuning)
+### Hypothesis
+By running a focused, parallel Optuna parameter sweep (500 trials total) strictly optimizing on In-Sample (IS) Sharpe in the local neighborhood (+/- 15%) of the current baseline parameters, exploring fine-grained variations of thresholds, lookback windows, and exit targets under all symmetry and tradeability constraints (up/down triggers within 10%, threshold >= 0.00005, er_threshold >= 0.50, exit_profit_pct >= 1.0%, stop_loss_pct >= 1.5%), we can identify a parameter configuration that achieves a higher In-Sample (IS) Sharpe Ratio (>173.20). Out-of-Sample (OOS) metrics will be passively validated.
+
+### Results
+- The baseline parameters (Trial 0) remained the optimal configuration (IS Sharpe: 173.20, OOS Sharpe: 154.36, OOS MaxDD: -6.03%).
+- A highly optimized parallel Optuna sweep (480 trials total) strictly optimizing on In-Sample (IS) Sharpe confirmed that no new parameter configuration outperformed the baseline configuration under all constraints (up/down thresholds within 10% symmetry, threshold >= 0.00005, er_threshold >= 0.50, exit_profit_pct >= 1.0%, stop_loss_pct >= 1.5%).
+- Consequently, the feature branch was discarded and the current baseline parameters were retained.
+
+
+
 
 
 
