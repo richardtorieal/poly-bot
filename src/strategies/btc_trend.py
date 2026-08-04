@@ -26,6 +26,8 @@ class BTCTrendStrategy(BaseStrategy):
         self.er_lookback = er_lookback if er_lookback is not None else lookback_minutes
         self.use_ema_filter = use_ema_filter
         self.ema_span = ema_span
+        self._prev_ema = None
+        self._prev_len = 0
 
     def decide(self, current_data: pd.Series, history: pd.DataFrame) -> str:
         # Determine timestamp and check if within prediction window filter
@@ -91,8 +93,21 @@ class BTCTrendStrategy(BaseStrategy):
         # EMA filter to avoid counter-trend entries in high/medium-term regimes
         if self.use_ema_filter:
             if len(history) >= self.ema_span:
-                # Calculating EMA of last ema_span rows
-                ema = history['btc_price'].ewm(span=self.ema_span, adjust=False).mean().iloc[-1]
+                # Optimized O(1) EMA updating
+                if self._prev_ema is None or len(history) < self._prev_len:
+                    ema_series = history['btc_price'].ewm(span=self.ema_span, adjust=False).mean()
+                    self._prev_ema = ema_series.iloc[-1]
+                    self._prev_len = len(history)
+                else:
+                    if len(history) == self._prev_len + 1:
+                        multiplier = 2.0 / (self.ema_span + 1.0)
+                        self._prev_ema = current_btc * multiplier + self._prev_ema * (1.0 - multiplier)
+                        self._prev_len = len(history)
+                    else:
+                        ema_series = history['btc_price'].ewm(span=self.ema_span, adjust=False).mean()
+                        self._prev_ema = ema_series.iloc[-1]
+                        self._prev_len = len(history)
+                ema = self._prev_ema
                 if change > 0 and current_btc < ema:
                     return "HOLD"
                 if change < 0 and current_btc > ema:

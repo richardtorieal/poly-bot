@@ -160,13 +160,13 @@ def main():
     baseline_params_vol = {
         'lookback_minutes': 2,
         'er_lookback': 2,
-        'btc_threshold': 0.0001258696857686756,
-        'btc_threshold_up': 0.00013373575933865096,
-        'btc_threshold_down': 0.0001441505880256112,
-        'er_threshold': 0.9247299623040203,
-        'exit_profit_pct': 0.010636236657735214,
-        'stop_loss_pct': 0.018833502269120946,
-        'max_minutes_elapsed': 10.701785531153359,
+        'btc_threshold': 0.00013361118104529958,
+        'btc_threshold_up': 0.00013361118104529958,
+        'btc_threshold_down': 0.00014411005116773346,
+        'er_threshold': 0.8431436827871925,
+        'exit_profit_pct': 0.01196291304379161,
+        'stop_loss_pct': 0.018321002465024855,
+        'max_minutes_elapsed': 10.335172332284145,
         'use_ema_filter': False,
         'ema_span': 30,
         'volatility_adapt': True,
@@ -178,13 +178,13 @@ def main():
     baseline_params_no_vol = {
         'lookback_minutes': 2,
         'er_lookback': 2,
-        'btc_threshold': 0.0001258696857686756,
-        'btc_threshold_up': 0.00013373575933865096,
-        'btc_threshold_down': 0.0001441505880256112,
-        'er_threshold': 0.9247299623040203,
-        'exit_profit_pct': 0.010636236657735214,
-        'stop_loss_pct': 0.018833502269120946,
-        'max_minutes_elapsed': 10.701785531153359,
+        'btc_threshold': 0.00013361118104529958,
+        'btc_threshold_up': 0.00013361118104529958,
+        'btc_threshold_down': 0.00014411005116773346,
+        'er_threshold': 0.8431436827871925,
+        'exit_profit_pct': 0.01196291304379161,
+        'stop_loss_pct': 0.018321002465024855,
+        'max_minutes_elapsed': 10.335172332284145,
         'use_ema_filter': False,
         'ema_span': 30,
         'volatility_adapt': False,
@@ -196,7 +196,7 @@ def main():
     study.optimize(objective, n_trials=2)
     
     num_workers = 6
-    trials_per_worker = 30
+    trials_per_worker = 60
     
     logger.info(f"Spawning {num_workers} parallel workers to run {trials_per_worker} trials each (total {num_workers * trials_per_worker} trials)...")
     

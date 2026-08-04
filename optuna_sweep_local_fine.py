@@ -4,7 +4,6 @@ import yaml
 import os
 import optuna
 import time
-from multiprocessing import Process
 from typing import Dict, Any
 from src.utils.backtest_engine import BacktestEngine
 from src.strategies.btc_trend import BTCTrendStrategy
@@ -29,41 +28,38 @@ def load_config():
 def objective(trial):
     config = load_config()
     
-    # Focused search space around the baseline
+    # Fixed parameters from baseline
     lookback_minutes = 2
-    er_lookback = trial.suggest_int('er_lookback', 2, 3)
+    er_lookback = 2
+    use_ema_filter = False
+    volatility_adapt = False
     
-    # 2. Threshold search space with strict constraints
-    # Baseline btc_threshold_up ~ 0.0001362, btc_threshold_down ~ 0.0001443
-    btc_threshold_up = trial.suggest_float('btc_threshold_up', 0.00010, 0.00018)
+    # 2. Local search around baseline parameters
+    # Baseline up: 0.00013361
+    btc_threshold_up = trial.suggest_float('btc_threshold_up', 0.000120, 0.000145)
     
-    # Enforce btc_threshold_down is within 10% of btc_threshold_up
+    # Baseline down: 0.00014411
+    # Constraint: must be within 10% of btc_threshold_up
     low_down = max(0.00005, 0.91 * btc_threshold_up)
     high_down = 1.09 * btc_threshold_up
-    btc_threshold_down = trial.suggest_float('btc_threshold_down', low_down, high_down)
+    btc_threshold_down = trial.suggest_float('btc_threshold_down', max(low_down, 0.000130), min(high_down, 0.000155))
     
-    btc_threshold = (btc_threshold_up + btc_threshold_down) / 2.0
+    # Baseline er_threshold: 0.8431
+    er_threshold = trial.suggest_float('er_threshold', 0.800, 0.880)
     
-    # er_threshold >= 0.50 (Baseline ~0.9338)
-    er_threshold = trial.suggest_float('er_threshold', 0.80, 0.97)
+    # Baseline exit_profit_pct: 0.01196
+    exit_profit_pct = trial.suggest_float('exit_profit_pct', 0.0110, 0.0135)
     
-    # Exit profit target >= 1.0% (0.01) (Baseline ~0.01206)
-    exit_profit_pct = trial.suggest_float('exit_profit_pct', 0.010, 0.018)
+    # Baseline stop_loss_pct: 0.01832
+    stop_loss_pct = trial.suggest_float('stop_loss_pct', 0.0165, 0.0210)
     
-    # Stop loss >= 1.5% (0.015) (Baseline ~0.01893)
-    stop_loss_pct = trial.suggest_float('stop_loss_pct', 0.015, 0.028)
-    
-    # Max minutes elapsed (Baseline ~10.63)
-    max_minutes_elapsed = trial.suggest_float('max_minutes_elapsed', 9.0, 12.0)
-    
-    # EMA trend filter
-    use_ema_filter = trial.suggest_categorical('use_ema_filter', [True, False])
-    ema_span = trial.suggest_int('ema_span', 20, 60)
+    # Baseline max_minutes_elapsed: 10.335
+    max_minutes_elapsed = trial.suggest_float('max_minutes_elapsed', 9.80, 10.80)
     
     pos_size_pct = 0.03
     
     params = {
-        'btc_threshold': btc_threshold,
+        'btc_threshold': btc_threshold_up,
         'btc_threshold_up': btc_threshold_up,
         'btc_threshold_down': btc_threshold_down,
         'lookback_minutes': lookback_minutes,
@@ -75,7 +71,7 @@ def objective(trial):
         'max_minutes_elapsed': max_minutes_elapsed,
         'filter_strike_trend': True,
         'use_ema_filter': use_ema_filter,
-        'ema_span': ema_span
+        'volatility_adapt': volatility_adapt
     }
     
     split_idx = int(len(DF_GLOBAL) * config['backtest']['is_oos_split'])
@@ -88,17 +84,16 @@ def objective(trial):
     )
     
     strategy = BTCTrendStrategy(
-        btc_threshold=btc_threshold,
+        btc_threshold=btc_threshold_up,
         btc_threshold_up=btc_threshold_up,
         btc_threshold_down=btc_threshold_down,
         lookback_minutes=lookback_minutes,
         er_threshold=er_threshold,
         max_minutes_elapsed=max_minutes_elapsed,
         filter_strike_trend=True,
-        volatility_adapt=False,
+        volatility_adapt=volatility_adapt,
         er_lookback=er_lookback,
-        use_ema_filter=use_ema_filter,
-        ema_span=ema_span
+        use_ema_filter=use_ema_filter
     )
     
     is_results = engine.run(strategy, df_is, params)
@@ -118,19 +113,14 @@ def objective(trial):
     
     return is_sharpe
 
-def run_worker(study_name, storage, n_trials):
-    study = optuna.load_study(study_name=study_name, storage=storage)
-    time.sleep(np.random.rand() * 2)
-    study.optimize(objective, n_trials=n_trials)
-
 def main():
-    logger.info("Initializing In-Sample local fine Optuna sweep...")
-    study_name = "btc_trend_opt_local_fine_2"
-    storage_url = "sqlite:///optuna_study_local_fine_2.db"
+    logger.info("Initializing Local Fine Optuna sweep...")
+    study_name = "btc_trend_opt_local_fine"
+    storage_url = "sqlite:///optuna_study_local_fine.db"
     
-    if os.path.exists("optuna_study_local_fine_2.db"):
+    if os.path.exists("optuna_study_local_fine.db"):
         try:
-            os.remove("optuna_study_local_fine_2.db")
+            os.remove("optuna_study_local_fine.db")
         except Exception as e:
             logger.warning(f"Could not remove old DB: {e}")
             
@@ -140,37 +130,25 @@ def main():
         direction="maximize"
     )
     
-    # Enqueue baseline parameters
+    # Enqueue baseline parameters (Current config parameters)
     baseline_params = {
-        'er_lookback': 2,
-        'btc_threshold_up': 0.00013621642786457492,
-        'btc_threshold_down': 0.0001442843815875098,
-        'er_threshold': 0.9337933020672892,
-        'exit_profit_pct': 0.012062799630784467,
-        'stop_loss_pct': 0.01893268344781407,
-        'max_minutes_elapsed': 10.634904027311073,
-        'use_ema_filter': False,
-        'ema_span': 30
+        'btc_threshold_up': 0.00013361118104529958,
+        'btc_threshold_down': 0.00014411005116773346,
+        'er_threshold': 0.8431436827871925,
+        'exit_profit_pct': 0.01196291304379161,
+        'stop_loss_pct': 0.018321002465024855,
+        'max_minutes_elapsed': 10.335172332284145
     }
     study.enqueue_trial(baseline_params)
-    logger.info("Evaluating enqueued baseline trial sequentially first...")
+    logger.info("Evaluating enqueued baseline trial...")
     study.optimize(objective, n_trials=1)
     
-    num_workers = 6
-    trials_per_worker = 50
+    # Run 400 trials sequentially (no DB locking overhead!)
+    # Since each trial takes 0.3s, 400 trials will take ~120s (2 minutes)
+    logger.info("Running 400 optimization trials sequentially...")
+    study.optimize(objective, n_trials=400)
     
-    logger.info(f"Spawning {num_workers} parallel workers to run {trials_per_worker} trials each (total {num_workers * trials_per_worker} trials)...")
-    
-    processes = []
-    for i in range(num_workers):
-        p = Process(target=run_worker, args=(study_name, storage_url, trials_per_worker))
-        p.start()
-        processes.append(p)
-        
-    for p in processes:
-        p.join()
-        
-    logger.info("All workers finished. Analyzing trials...")
+    logger.info("Sweep complete. Analyzing trials...")
     
     study = optuna.load_study(study_name=study_name, storage=storage_url)
     trials = study.trials
@@ -190,7 +168,7 @@ def main():
         ratio1 = up / down
         ratio2 = down / up
         
-        # Verify symmetry constraint (within 10%)
+        # Verify symmetry constraint
         if ratio1 > 1.10 or ratio2 > 1.10:
             continue
             
@@ -206,10 +184,10 @@ def main():
             
         valid_trials.append(t)
             
-    # Sort strictly by In-Sample (IS) Sharpe to respect NO OVERFITTING OOS rule
+    # Sort strictly by In-Sample (IS) Sharpe
     valid_trials.sort(key=lambda x: x.user_attrs.get('is_sharpe', 0.0), reverse=True)
     
-    print("\n=== TOP 15 TRIALS SORTED BY IS SHARPE (Satisfying Constraints) ===")
+    print("\n=== TOP 15 FINE-TUNED TRIALS SORTED BY IS SHARPE (Satisfying Constraints) ===")
     for i, t in enumerate(valid_trials[:15]):
         print(f"Rank {i+1}: Trial {t.number}")
         print(f"  IS Sharpe: {t.user_attrs.get('is_sharpe'):.4f} | IS PnL: {t.user_attrs.get('is_pnl'):.2f}% | IS Trades: {t.user_attrs.get('is_trades')}")
@@ -218,6 +196,6 @@ def main():
         for k, v in t.params.items():
             print(f"    {k}: {v}")
         print("-" * 50)
-
+        
 if __name__ == "__main__":
     main()

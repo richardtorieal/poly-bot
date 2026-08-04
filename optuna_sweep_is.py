@@ -139,17 +139,17 @@ def main():
         direction="maximize"
     )
     
-    # Enqueue baseline parameters (July 15 parameters)
+    # Enqueue baseline parameters (Current config parameters)
     baseline_params = {
         'lookback_minutes': 2,
         'er_lookback': 2,
-        'btc_threshold': 0.00014227,
-        'btc_threshold_up': 0.00014545,
-        'btc_threshold_down': 0.00014809,
-        'er_threshold': 0.6653,
-        'exit_profit_pct': 0.0112,
-        'stop_loss_pct': 0.01512,
-        'max_minutes_elapsed': 10.83,
+        'btc_threshold': 0.00013361118104529958,
+        'btc_threshold_up': 0.00013361118104529958,
+        'btc_threshold_down': 0.00014411005116773347,
+        'er_threshold': 0.8431436827871925,
+        'exit_profit_pct': 0.01196291304379161,
+        'stop_loss_pct': 0.018321002465024855,
+        'max_minutes_elapsed': 10.335172332284145,
         'use_ema_filter': False,
         'ema_span': 30
     }
@@ -158,7 +158,7 @@ def main():
     study.optimize(objective, n_trials=1)
     
     num_workers = 6
-    trials_per_worker = 25
+    trials_per_worker = 60
     
     logger.info(f"Spawning {num_workers} parallel workers to run {trials_per_worker} trials each (total {num_workers * trials_per_worker} trials)...")
     
