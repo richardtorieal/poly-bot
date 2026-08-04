@@ -513,6 +513,34 @@ By running a focused, parallel Optuna parameter sweep (500 trials total) strictl
 - Consequently, the feature branch was discarded and the current baseline parameters were retained.
 
 
+## Optimization Run (2026-08-04 - Antigravity In-Sample Tuning)
+### Hypothesis
+By running a highly parallel Optuna sweep (600 trials total) strictly optimizing on In-Sample (IS) Sharpe, enforcing the symmetry constraint (btc_threshold_up and btc_threshold_down within 10%), minimum constraints (btc_threshold_up/down >= 0.00005, er_threshold >= 0.50, exit_profit_pct >= 1.0%, stop_loss_pct >= 1.5%), and exploring a target neighborhood of the current baseline parameters (such as lookback_minutes in [2, 3, 4], er_lookback in [2, 10], er_threshold in [0.75, 0.95], exit_profit_pct in [0.010, 0.020], stop_loss_pct in [0.015, 0.035]), we can identify a parameter configuration that achieves a higher In-Sample (IS) Sharpe Ratio (>173.20) on our golden dataset. Out-of-Sample (OOS) metrics will be passively validated.
+
+### Results
+- Optimal parameters (Trial 469):
+  - `btc_threshold`: 0.0001241099120448384
+  - `btc_threshold_up`: 0.00013340626788619806
+  - `btc_threshold_down`: 0.000144160356963372
+  - `lookback_minutes`: 2
+  - `er_threshold`: 0.8466971019904753
+  - `pos_size_pct`: 0.03
+  - `exit_profit_pct`: 0.012057904547127131
+  - `stop_loss_pct`: 0.018792741388967655
+  - `max_minutes_elapsed`: 10.532083622713811
+  - `filter_strike_trend`: True
+  - `er_lookback`: 2
+- In-Sample (IS) Results:
+  - Sharpe: 173.27 (improved from baseline 173.20)
+  - PnL%: 4378535.82%
+- Out-of-Sample (OOS) Results (Passive Validation):
+  - Sharpe: 154.36
+  - PnL%: 1163.42%
+  - MaxDD: -6.03% (strictly better than -30%)
+
+
+
+
 
 
 
