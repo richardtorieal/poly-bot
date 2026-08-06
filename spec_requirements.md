@@ -548,6 +548,38 @@ By running a focused parallel Optuna parameter sweep (600 trials total) strictly
 - A highly optimized parallel Optuna sweep (600 trials total) strictly optimizing on In-Sample (IS) Sharpe confirmed that no new parameter combination outperformed the baseline configuration under all constraints (up/down thresholds within 10% symmetry, threshold >= 0.00005, er_threshold >= 0.50, exit_profit_pct >= 1.0%, stop_loss_pct >= 1.5%).
 - Consequently, the feature branch was discarded and the current baseline parameters were retained.
 
+## Optimization Run (2026-08-05 - Antigravity In-Sample Tuning)
+### Hypothesis
+By running a focused, parallel Optuna parameter sweep (500 trials total) strictly optimizing on In-Sample (IS) Sharpe in the local neighborhood (+/- 15%) of the current baseline parameters (IS Sharpe: 173.39), and searching a refined range of efficiency ratio thresholds, adaptive volatility parameters, and exit/stop configurations under all symmetry and tradeability constraints (up/down triggers within 10% symmetry, thresholds >= 0.00005, er_threshold >= 0.50, exit_profit_pct >= 1.0%, stop_loss_pct >= 1.5%), we can identify a parameter configuration that achieves a higher In-Sample (IS) Sharpe Ratio (>173.39) on the golden dataset. Out-of-Sample (OOS) metrics will be passively validated.
+
+### Results
+- Optimal parameters (Trial 323):
+  - `btc_threshold`: 0.00019507668438424405
+  - `btc_threshold_up`: 0.00018755909138595082
+  - `btc_threshold_down`: 0.00017259517970098768
+  - `lookback_minutes`: 2
+  - `er_threshold`: 0.6015995026432532
+  - `pos_size_pct`: 0.03
+  - `exit_profit_pct`: 0.010002362728652564
+  - `stop_loss_pct`: 0.01792942011820819
+  - `max_minutes_elapsed`: 10.558859919710134
+  - `filter_strike_trend`: True
+  - `er_lookback`: 2
+  - `use_ema_filter`: False
+  - `ema_span`: 43
+  - `volatility_adapt`: True
+  - `trailing_stop_activation_pct`: 0.005219027189995342
+  - `trailing_stop_drop_pct`: 0.0034081151443966905
+- In-Sample (IS) Results:
+  - Sharpe: 173.55 (improved from baseline 173.39, +0.16 improvement)
+  - PnL%: 4169215.12%
+- Out-of-Sample (OOS) Results (Passive Validation):
+  - Sharpe: 155.06 (improved from baseline 154.29, +0.77 improvement)
+  - PnL%: 1112.98%
+  - MaxDD: -6.03% (strictly better than -30%)
+
+
+
 
 
 
