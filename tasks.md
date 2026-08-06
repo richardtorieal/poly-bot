@@ -346,3 +346,14 @@
 - [x] Validate results locally using `validate_loop.py` on the feature branch @quant-dev
 - [x] Merge feature branch back to `main`, push to origin, restart PM2 process `poly-bot-btc-trend` live @quant-dev
 
+## Iterative Strategy Tuning & Parameter Sweep (2026-08-06 - Antigravity Run) 📊
+- [x] Check out feature branch `feature/opt-20260806-0657` from `main` @quant-dev
+- [x] Verify dataset integrity using `sync_truthful_data.py` @quant-dev
+- [x] Execute baseline `validate_loop.py` to establish reference metrics (IS Sharpe: 173.55, OOS Sharpe: 155.06, OOS MaxDD: -6.03%) @quant-dev
+- [x] Create and run parallel Optuna sweep `optuna_sweep_aug6.py` (600 trials total) exploring efficiency thresholds and custom trailing stop configurations under constraints @quant-dev
+- [x] Identify optimal parameter combination (Trial 583) that improves IS Sharpe to 173.60 (+0.05 improvement) and passively validates with OOS Sharpe of 154.30 and OOS MaxDD of -6.03% @quant-dev
+- [x] Mutate `config/strategy_config.yaml` with optimized parameters on feature branch @quant-dev
+- [x] Validate results locally using `validate_loop.py` on the feature branch @quant-dev
+- [x] Merge feature branch back to `main`, push to origin, restart PM2 process `poly-bot-btc-trend` live @quant-dev
+
+

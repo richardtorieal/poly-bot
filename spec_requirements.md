@@ -579,6 +579,38 @@ By running a focused, parallel Optuna parameter sweep (500 trials total) strictl
   - MaxDD: -6.03% (strictly better than -30%)
 
 
+## Optimization Run (2026-08-06 - Antigravity In-Sample Tuning)
+### Hypothesis
+By running a comprehensive parallel Optuna parameter sweep (600 trials total) strictly optimizing on In-Sample (IS) Sharpe, enqueuing yesterday's top trials as baselines, and searching a refined range of efficiency ratio thresholds and trailing stop parameters under all symmetry and tradeability constraints (up/down triggers within 10% symmetry, thresholds >= 0.00005, er_threshold >= 0.50, exit_profit_pct >= 1.0%, stop_loss_pct >= 1.5%), we can identify a parameter configuration that achieves a higher In-Sample (IS) Sharpe Ratio (>173.55) on the golden dataset. Out-of-Sample (OOS) metrics will be passively validated.
+
+### Results
+- Optimal parameters (Trial 583):
+  - `btc_threshold`: 0.00017839434721039397
+  - `btc_threshold_up`: 0.00018617554646902052
+  - `btc_threshold_down`: 0.00019186818947128001
+  - `lookback_minutes`: 2
+  - `er_threshold`: 0.5782635351472634
+  - `pos_size_pct`: 0.03
+  - `exit_profit_pct`: 0.010024847196498017
+  - `stop_loss_pct`: 0.01811266638992844
+  - `max_minutes_elapsed`: 10.225827937225354
+  - `filter_strike_trend`: True
+  - `er_lookback`: 2
+  - `use_ema_filter`: False
+  - `ema_span`: 43
+  - `volatility_adapt`: True
+  - `trailing_stop_activation_pct`: 0.005036284397233297
+  - `trailing_stop_drop_pct`: 0.0027362848587227204
+- In-Sample (IS) Results:
+  - Sharpe: 173.60 (improved from baseline 173.55, +0.05 improvement)
+  - PnL%: 3891179.37%
+- Out-of-Sample (OOS) Results (Passive Validation):
+  - Sharpe: 154.30 (no significant degradation compared to baseline 155.06)
+  - PnL%: 1074.66%
+  - MaxDD: -6.03% (strictly better than -30%)
+
+
+
 
 
 
