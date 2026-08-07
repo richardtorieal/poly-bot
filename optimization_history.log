@@ -3917,3 +3917,47 @@
       MaxDD: -6.03%
     ---------------------------------------------------
     
+    DATE: 2026-08-06 18:48:09
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.00017839434721039397, 'btc_threshold_up': 0.00018617554646902052, 'btc_threshold_down': 0.00019186818947128001, 'lookback_minutes': 2, 'er_threshold': 0.5782635351472634, 'pos_size_pct': 0.03, 'exit_profit_pct': 0.010024847196498017, 'stop_loss_pct': 0.01811266638992844, 'max_minutes_elapsed': 10.225827937225354, 'filter_strike_trend': True, 'er_lookback': 2, 'use_ema_filter': False, 'ema_span': 43, 'volatility_adapt': True, 'trailing_stop_activation_pct': 0.005036284397233297, 'trailing_stop_drop_pct': 0.0027362848587227204}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 48551028.74%
+      Win Rate: 83.2%
+      Sharpe: 170.38
+      Trades: 4257
+
+    IN-SAMPLE (IS):
+      PnL%: 3891179.37%
+      Win Rate: 83.0%
+      Sharpe: 173.60
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 1074.66%
+      Win Rate: 83.6%
+      Sharpe: 154.30
+      MaxDD: -6.03%
+    ---------------------------------------------------
+    
+    DATE: 2026-08-06 19:02:28
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.00017614325126343613, 'btc_threshold_up': 0.0001874888832240607, 'btc_threshold_down': 0.00019095284504964073, 'lookback_minutes': 2, 'er_threshold': 0.6250712078951469, 'pos_size_pct': 0.03, 'exit_profit_pct': 0.010041775184030273, 'stop_loss_pct': 0.01817084532161434, 'max_minutes_elapsed': 10.214197167646475, 'filter_strike_trend': True, 'er_lookback': 2, 'use_ema_filter': False, 'ema_span': 41, 'volatility_adapt': True, 'trailing_stop_activation_pct': 0.005193817586716604, 'trailing_stop_drop_pct': 0.0021061950810327703}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 49118824.04%
+      Win Rate: 83.2%
+      Sharpe: 170.55
+      Trades: 4252
+
+    IN-SAMPLE (IS):
+      PnL%: 3941702.24%
+      Win Rate: 83.1%
+      Sharpe: 173.81
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 1073.17%
+      Win Rate: 83.6%
+      Sharpe: 154.30
+      MaxDD: -6.03%
+    ---------------------------------------------------
+    
