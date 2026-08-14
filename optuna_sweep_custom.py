@@ -5,7 +5,6 @@ import os
 import optuna
 import time
 from multiprocessing import Process
-from typing import Dict, Any
 from src.utils.backtest_engine import BacktestEngine
 from src.strategies.btc_trend import BTCTrendStrategy
 from src.utils.logger import logger
@@ -29,29 +28,64 @@ def load_config():
 def objective(trial):
     config = load_config()
     
-    # Fixed parameters from baseline
-    lookback_minutes = 2
-    er_lookback = 2
-    use_ema_filter = False
-    volatility_adapt = False
+    # 1. Lookback window
+    lookback_minutes = trial.suggest_int('lookback_minutes', 2, 2)
+    er_lookback = trial.suggest_int('er_lookback', 2, 3)
     
-    # 2. Local search around baseline parameters
-    btc_threshold_up = trial.suggest_float('btc_threshold_up', 0.000100, 0.000160)
+    # Baseline was:
+    # btc_threshold: 0.0001659135263521187
+    # btc_threshold_up: 0.0001806123709839403
+    # btc_threshold_down: 0.00019091911765103503
+    # er_threshold: 0.6500663146412691
+    # exit_profit_pct: 0.010804478635154236
+    # stop_loss_pct: 0.01795403236032585
+    # max_minutes_elapsed: 10.751318131725487
+    # trailing_stop_activation_pct: 0.005098123017402914
+    # trailing_stop_drop_pct: 0.0031731403948163754
+    # ema_span: 36
     
-    # Suggest down to guarantee symmetry within 10% of up
+    # Let's search a narrow range around baseline (+/- 20% to 30%)
+    btc_threshold = trial.suggest_float('btc_threshold', 0.00013, 0.00021)
+    
+    # Enforce btc_threshold_up >= 0.00005 and within 9% of btc_threshold
+    btc_threshold_up = trial.suggest_float('btc_threshold_up', max(0.00005, 0.91 * btc_threshold), 1.09 * btc_threshold)
+    
+    # Enforce btc_threshold_down >= 0.00005 and within 9% of btc_threshold_up to ensure within 10%
     low_down = max(0.00005, 0.91 * btc_threshold_up)
-    high_down = 1.10 * btc_threshold_up
+    high_down = 1.09 * btc_threshold_up
     btc_threshold_down = trial.suggest_float('btc_threshold_down', low_down, high_down)
     
-    er_threshold = trial.suggest_float('er_threshold', 0.78, 0.92)
-    exit_profit_pct = trial.suggest_float('exit_profit_pct', 0.010, 0.015)
-    stop_loss_pct = trial.suggest_float('stop_loss_pct', 0.015, 0.025)
-    max_minutes_elapsed = trial.suggest_float('max_minutes_elapsed', 9.5, 11.5)
+    # er_threshold >= 0.50
+    er_threshold = trial.suggest_float('er_threshold', 0.50, 0.75)
     
+    # Exit profit target >= 1.0% (0.01)
+    exit_profit_pct = trial.suggest_float('exit_profit_pct', 0.010, 0.015)
+    
+    # Stop loss >= 1.5% (0.015)
+    stop_loss_pct = trial.suggest_float('stop_loss_pct', 0.015, 0.025)
+    
+    max_minutes_elapsed = trial.suggest_float('max_minutes_elapsed', 9.0, 13.0)
+    
+    # EMA trend filter
+    use_ema_filter = trial.suggest_categorical('use_ema_filter', [False, True])
+    ema_span = trial.suggest_int('ema_span', 20, 50)
+    
+    # Volatility adapt parameter
+    volatility_adapt = trial.suggest_categorical('volatility_adapt', [True])
+    
+    # Trailing stop search
+    use_trailing_stop = trial.suggest_categorical('use_trailing_stop', [True])
+    if use_trailing_stop:
+        trailing_stop_activation_pct = trial.suggest_float('trailing_stop_activation_pct', 0.0035, 0.007)
+        trailing_stop_drop_pct = trial.suggest_float('trailing_stop_drop_pct', 0.0015, 0.004)
+    else:
+        trailing_stop_activation_pct = None
+        trailing_stop_drop_pct = None
+        
     pos_size_pct = 0.03
     
     params = {
-        'btc_threshold': btc_threshold_up,
+        'btc_threshold': btc_threshold,
         'btc_threshold_up': btc_threshold_up,
         'btc_threshold_down': btc_threshold_down,
         'lookback_minutes': lookback_minutes,
@@ -63,9 +97,14 @@ def objective(trial):
         'max_minutes_elapsed': max_minutes_elapsed,
         'filter_strike_trend': True,
         'use_ema_filter': use_ema_filter,
+        'ema_span': ema_span,
         'volatility_adapt': volatility_adapt
     }
     
+    if trailing_stop_activation_pct is not None:
+        params['trailing_stop_activation_pct'] = trailing_stop_activation_pct
+        params['trailing_stop_drop_pct'] = trailing_stop_drop_pct
+        
     split_idx = int(len(DF_GLOBAL) * config['backtest']['is_oos_split'])
     df_is = DF_GLOBAL.iloc[:split_idx]
     df_oos = DF_GLOBAL.iloc[split_idx:]
@@ -76,7 +115,7 @@ def objective(trial):
     )
     
     strategy = BTCTrendStrategy(
-        btc_threshold=btc_threshold_up,
+        btc_threshold=btc_threshold,
         btc_threshold_up=btc_threshold_up,
         btc_threshold_down=btc_threshold_down,
         lookback_minutes=lookback_minutes,
@@ -85,7 +124,8 @@ def objective(trial):
         filter_strike_trend=True,
         volatility_adapt=volatility_adapt,
         er_lookback=er_lookback,
-        use_ema_filter=use_ema_filter
+        use_ema_filter=use_ema_filter,
+        ema_span=ema_span
     )
     
     is_results = engine.run(strategy, df_is, params)
@@ -111,7 +151,7 @@ def run_worker(study_name, storage, n_trials):
     study.optimize(objective, n_trials=n_trials)
 
 def main():
-    logger.info("Initializing Custom In-Sample optimized Optuna sweep...")
+    logger.info("Initializing Custom In-Sample Optuna sweep...")
     study_name = "btc_trend_opt_custom"
     storage_url = "sqlite:///optuna_study_custom.db"
     
@@ -127,23 +167,34 @@ def main():
         direction="maximize"
     )
     
-    # Enqueue baseline parameters (Current config parameters)
+    # Enqueue baseline parameters
     baseline_params = {
-        'btc_threshold_up': 0.00013361118104529958,
-        'btc_threshold_down': 0.00014411005116773346,
-        'er_threshold': 0.8431436827871925,
-        'exit_profit_pct': 0.01196291304379161,
-        'stop_loss_pct': 0.018321002465024855,
-        'max_minutes_elapsed': 10.335172332284145
+        'lookback_minutes': 2,
+        'er_lookback': 2,
+        'btc_threshold': 0.0001659135263521187,
+        'btc_threshold_up': 0.0001806123709839403,
+        'btc_threshold_down': 0.00019091911765103503,
+        'er_threshold': 0.6500663146412691,
+        'exit_profit_pct': 0.010804478635154236,
+        'stop_loss_pct': 0.01795403236032585,
+        'max_minutes_elapsed': 10.751318131725487,
+        'use_ema_filter': False,
+        'ema_span': 36,
+        'volatility_adapt': True,
+        'use_trailing_stop': True,
+        'trailing_stop_activation_pct': 0.005098123017402914,
+        'trailing_stop_drop_pct': 0.0031731403948163754
     }
+    
     study.enqueue_trial(baseline_params)
-    logger.info("Evaluating enqueued baseline trial sequentially first...")
+    
+    logger.info("Evaluating enqueued baseline trial sequentially...")
     study.optimize(objective, n_trials=1)
     
     num_workers = 6
-    trials_per_worker = 100
+    trials_per_worker = 150 # 900 trials total
     
-    logger.info(f"Spawning {num_workers} parallel workers to run {trials_per_worker} trials each (total {num_workers * trials_per_worker} trials)...")
+    logger.info(f"Spawning {num_workers} parallel workers to run {trials_per_worker} trials each (total {num_workers * trials_per_worker + 1} trials)...")
     
     processes = []
     for i in range(num_workers):
@@ -174,7 +225,7 @@ def main():
         ratio1 = up / down
         ratio2 = down / up
         
-        # Verify symmetry constraint
+        # Verify symmetry constraint (10%)
         if ratio1 > 1.10 or ratio2 > 1.10:
             continue
             
@@ -190,7 +241,7 @@ def main():
             
         valid_trials.append(t)
             
-    # Sort strictly by In-Sample (IS) Sharpe to respect NO OVERFITTING OOS rule
+    # Sort strictly by In-Sample (IS) Sharpe
     valid_trials.sort(key=lambda x: x.user_attrs.get('is_sharpe', 0.0), reverse=True)
     
     print("\n=== TOP 15 TRIALS SORTED BY IS SHARPE (Satisfying Constraints) ===")
@@ -202,6 +253,6 @@ def main():
         for k, v in t.params.items():
             print(f"    {k}: {v}")
         print("-" * 50)
-        
+
 if __name__ == "__main__":
     main()
