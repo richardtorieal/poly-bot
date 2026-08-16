@@ -401,4 +401,13 @@
 - [x] Verify that the baseline parameters (Trial 0) remain the optimal configuration (IS Sharpe: 173.77, OOS Sharpe: 155.15, OOS MaxDD: -6.03%) under all mandated constraints @quant-dev
 - [x] Discard the feature branch and revert to `main` as no improvement was found @quant-dev
 
+## Iterative Strategy Tuning & Parameter Sweep (2026-08-16 - Antigravity Run) 📊
+- [x] Check out feature branch `feature/opt-20260816-1239` from `main` @quant-dev
+- [x] Verify dataset integrity using `sync_truthful_data.py` @quant-dev
+- [x] Execute baseline `validate_loop.py` to establish reference metrics (IS Sharpe: 173.77, OOS Sharpe: 155.15, OOS MaxDD: -6.03%) @quant-dev
+- [x] Create and run parallel Optuna sweep `optuna_sweep_aug16.py` (300 trials total) strictly optimizing on In-Sample (IS) Sharpe and enforcing constraints @quant-dev
+- [x] Verify that the baseline parameters (Trial 0) remain the optimal configuration (IS Sharpe: 173.77, OOS Sharpe: 155.15, OOS MaxDD: -6.03%) under all mandated constraints @quant-dev
+- [x] Discard the feature branch and revert to `main` as no improvement was found @quant-dev
+
+
 
