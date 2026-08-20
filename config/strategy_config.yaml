@@ -15,8 +15,8 @@ strategy:
     use_ema_filter: false
     ema_span: 37
     volatility_adapt: true
-    trailing_stop_activation_pct: 0.0042928403383214525
-    trailing_stop_drop_pct: 0.003211112674940859
+    trailing_stop_activation_pct: 0.005
+    trailing_stop_drop_pct: 0.001
 
 backtest:
   initial_capital: 1000.0
