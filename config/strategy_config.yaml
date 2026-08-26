@@ -1,24 +1,26 @@
-strategy:
-  name: "BTCTrendStrategy"
-  parameters:
-    btc_threshold: 0.00018237402774400692
-    btc_threshold_up: 0.00018069718239417223
-    btc_threshold_down: 0.00019149362014189548
-    lookback_minutes: 2
-    er_threshold: 0.5918911692662452
-    pos_size_pct: 0.03
-    exit_profit_pct: 0.010009953796774582
-    stop_loss_pct: 0.017817787867107908
-    max_minutes_elapsed: 10.245601069184316
-    filter_strike_trend: true
-    er_lookback: 2
-    use_ema_filter: false
-    ema_span: 37
-    volatility_adapt: true
-    trailing_stop_activation_pct: 0.005
-    trailing_stop_drop_pct: 0.001
-
 backtest:
   initial_capital: 1000.0
-  is_oos_split: 0.8  # 80% In-Sample
-  slippage_bps: 50   # 50bps half-spread for true real-world Polymarket parity
+  is_oos_split: 0.8
+  slippage_bps: 50
+strategy:
+  name: BTCTrendStrategy
+  parameters:
+    btc_threshold: 0.00018237402774400692
+    btc_threshold_down: 0.00019149362014189548
+    btc_threshold_up: 0.00018069718239417223
+    ema_span: 37
+    er_lookback: 2
+    er_threshold: 0.5918911692662452
+    exit_profit_pct: 0.010009953796774582
+    filter_strike_trend: true
+    lookback_minutes: 2
+    max_minutes_elapsed: 10.245601069184316
+    pos_size_pct: 0.03
+    stop_loss_pct: 0.017817787867107908
+    trailing_stop_activation_pct: 0.005
+    trailing_stop_drop_pct: 0.001
+    use_ema_filter: false
+    vol_mult_max: 1.2
+    vol_mult_min: 0.4
+    volatility_adapt: true
+    volatility_base: 0.0006

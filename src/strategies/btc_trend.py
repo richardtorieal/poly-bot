@@ -14,7 +14,7 @@ class BTCTrendStrategy(BaseStrategy):
     Simple Lead-Lag strategy: If BTC moves more than X% in Y minutes, 
     bet on Polymarket catching up.
     """
-    def __init__(self, btc_threshold: float = 0.0005, lookback_minutes: int = 5, er_threshold: float = 0.5, max_minutes_elapsed: float = 999.0, btc_threshold_up: float = None, btc_threshold_down: float = None, filter_strike_trend: bool = True, volatility_adapt: bool = False, er_lookback: int = None, use_ema_filter: bool = False, ema_span: int = 30):
+    def __init__(self, btc_threshold: float = 0.0005, lookback_minutes: int = 5, er_threshold: float = 0.5, max_minutes_elapsed: float = 999.0, btc_threshold_up: float = None, btc_threshold_down: float = None, filter_strike_trend: bool = True, volatility_adapt: bool = False, er_lookback: int = None, use_ema_filter: bool = False, ema_span: int = 30, volatility_base: float = 0.000655, vol_mult_min: float = 0.5, vol_mult_max: float = 2.0):
         self.btc_threshold = btc_threshold
         self.btc_threshold_up = btc_threshold_up if btc_threshold_up is not None else btc_threshold
         self.btc_threshold_down = btc_threshold_down if btc_threshold_down is not None else btc_threshold
@@ -26,6 +26,9 @@ class BTCTrendStrategy(BaseStrategy):
         self.er_lookback = er_lookback if er_lookback is not None else lookback_minutes
         self.use_ema_filter = use_ema_filter
         self.ema_span = ema_span
+        self.volatility_base = volatility_base
+        self.vol_mult_min = vol_mult_min
+        self.vol_mult_max = vol_mult_max
         self._prev_ema = None
         self._prev_len = 0
 
@@ -60,8 +63,8 @@ class BTCTrendStrategy(BaseStrategy):
             returns = btc_prices.pct_change().dropna()
             current_vol = returns.std()
             if current_vol > 0:
-                vol_mult = current_vol / 0.000655
-                vol_mult = max(0.5, min(2.0, vol_mult))
+                vol_mult = current_vol / self.volatility_base
+                vol_mult = max(self.vol_mult_min, min(self.vol_mult_max, vol_mult))
             else:
                 vol_mult = 1.0
         else:

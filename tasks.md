@@ -424,3 +424,14 @@
 - [x] Run parallel parameter optimization sweeps (`optuna_sweep_aug21_fast.py`) strictly optimizing on In-Sample (IS) Sharpe under constraints @quant-dev
 - [x] Verify that the baseline parameters (Trial 0) remain the optimal configuration (IS Sharpe: 173.78, OOS Sharpe: 155.15, OOS MaxDD: -6.03%) under all mandated constraints @quant-dev
 - [x] Discard the feature branch and revert to `main` as no improvement was found @quant-dev
+
+## Iterative Strategy Tuning & Volatility Parameter Sweep (2026-08-26 - Antigravity Run) 📊
+- [x] Check out feature branch `feature/opt-202608261003` from `main` @quant-dev
+- [x] Verify dataset integrity using `sync_truthful_data.py` @quant-dev
+- [x] Execute baseline `validate_loop.py` to establish reference metrics (IS Sharpe: 173.78, OOS Sharpe: 155.15, OOS MaxDD: -6.03%) @quant-dev
+- [x] Expose adaptive volatility multiplier scaling parameters (`volatility_base`, `vol_mult_min`, `vol_mult_max`) in `BTCTrendStrategy` and `StrategyManager` @quant-dev
+- [x] Run parallel volatility parameter sweeps (241 candidates total) strictly optimizing on In-Sample (IS) Sharpe under constraints @quant-dev
+- [x] Identify optimal parameter combination that improves IS Sharpe to 175.83 (+2.05 improvement) by setting `volatility_base` to 0.0006, `vol_mult_min` to 0.4, and `vol_mult_max` to 1.2 @quant-dev
+- [x] Validate results locally using `validate_loop.py` on the feature branch (IS Sharpe: 175.83, OOS Sharpe: 150.82, OOS MaxDD: -6.03%) @quant-dev
+- [x] Merge feature branch back to `main`, push to origin, restart PM2 process `poly-bot-btc-trend` live @quant-dev
+

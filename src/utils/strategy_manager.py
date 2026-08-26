@@ -53,7 +53,10 @@ class StrategyManager:
                 'er_lookback': config.get('er_lookback'),
                 'filter_strike_trend': config.get('filter_strike_trend', True),
                 'use_ema_filter': config.get('use_ema_filter', False),
-                'ema_span': config.get('ema_span', 30)
+                'ema_span': config.get('ema_span', 30),
+                'volatility_base': config.get('volatility_base'),
+                'vol_mult_min': config.get('vol_mult_min'),
+                'vol_mult_max': config.get('vol_mult_max')
             }
             
             # Since some values might be None, filter them out before hashing/instantiation

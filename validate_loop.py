@@ -47,7 +47,10 @@ def run_experiment():
         volatility_adapt=config['strategy']['parameters'].get('volatility_adapt', False),
         er_lookback=config['strategy']['parameters'].get('er_lookback'),
         use_ema_filter=config['strategy']['parameters'].get('use_ema_filter', False),
-        ema_span=config['strategy']['parameters'].get('ema_span', 30)
+        ema_span=config['strategy']['parameters'].get('ema_span', 30),
+        volatility_base=config['strategy']['parameters'].get('volatility_base', 0.000655),
+        vol_mult_min=config['strategy']['parameters'].get('vol_mult_min', 0.5),
+        vol_mult_max=config['strategy']['parameters'].get('vol_mult_max', 2.0)
     )
 
     # 1. Run In-Sample
