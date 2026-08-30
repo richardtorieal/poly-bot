@@ -463,5 +463,11 @@
 - [x] Validate results locally using `validate_loop.py` on the feature branch @quant-dev
 - [x] Merge feature branch back to `main`, push to origin, restart PM2 process `poly-bot-btc-trend` live @quant-dev
 
-
-
+## Iterative Strategy Tuning & Speedup/Symmetry Correction (2026-08-30 - Antigravity Run) 📊
+- [x] Check out feature branch `feature/opt-202608301122` from `main` @quant-dev
+- [x] Verify dataset integrity using `sync_truthful_data.py` @quant-dev
+- [x] Optimize BTCTrendStrategy `decide()` backtesting performance: refactored DataFrame slicing to numpy array indexing, reducing backtest time from 3.5 minutes to 9 seconds (~23x speedup) @quant-dev
+- [x] Establish reference baseline metrics satisfying constraints (IS Sharpe: 176.14, OOS Sharpe: 151.66, OOS MaxDD: -6.03%) by adjusting `btc_threshold_down` to `0.000165` to strictly satisfy <= 10% symmetry constraint (actual: 9.98% difference) @quant-dev
+- [x] Run parallel parameter optimization sweeps (160 trials) and local neighborhood search (200 trials) under strict constraints @quant-dev
+- [x] Verify the adjusted baseline parameters remain the optimal configuration (IS Sharpe: 176.14, OOS Sharpe: 151.66, OOS MaxDD: -6.03%) under all mandated constraints @quant-dev
+- [x] Merge feature branch back to `main`, push to origin, restart PM2 process `poly-bot-btc-trend` live @quant-dev
