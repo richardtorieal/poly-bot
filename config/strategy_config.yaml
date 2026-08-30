@@ -5,22 +5,22 @@ backtest:
 strategy:
   name: BTCTrendStrategy
   parameters:
-    btc_threshold: 0.0001839957122800722
-    btc_threshold_down: 0.00017835614813955272
-    btc_threshold_up: 0.00016632377190678674
+    btc_threshold: 0.00020369169159651892
+    btc_threshold_down: 0.0001657531337629615
+    btc_threshold_up: 0.0001500327904043339
     ema_span: 37
     er_lookback: 2
-    er_threshold: 0.6643426745862648
-    exit_profit_pct: 0.010042252369025709
+    er_threshold: 0.5631848175284595
+    exit_profit_pct: 0.01203635473503178
     filter_strike_trend: true
     lookback_minutes: 2
-    max_minutes_elapsed: 10.721883439145579
+    max_minutes_elapsed: 10.387554981626314
     pos_size_pct: 0.03
-    stop_loss_pct: 0.018066116683092076
-    trailing_stop_activation_pct: 0.00756228445768961
-    trailing_stop_drop_pct: 0.0005529707894063418
+    stop_loss_pct: 0.018183729485678576
+    trailing_stop_activation_pct: 0.004696246279731181
+    trailing_stop_drop_pct: 0.0010129204273294536
     use_ema_filter: false
-    vol_mult_max: 1.1983723860814874
-    vol_mult_min: 0.4334937407714033
+    vol_mult_max: 1.3586735502614775
+    vol_mult_min: 0.3962145197136402
     volatility_adapt: true
-    volatility_base: 0.0005617746580368209
+    volatility_base: 0.0005313916577695697
