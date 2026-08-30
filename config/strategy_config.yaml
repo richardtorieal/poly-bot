@@ -6,7 +6,7 @@ strategy:
   name: BTCTrendStrategy
   parameters:
     btc_threshold: 0.00020369169159651892
-    btc_threshold_down: 0.0001657531337629615
+    btc_threshold_down: 0.000165
     btc_threshold_up: 0.0001500327904043339
     ema_span: 37
     er_lookback: 2

@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from abc import ABC, abstractmethod
 
 class BaseStrategy(ABC):
@@ -48,20 +49,21 @@ class BTCTrendStrategy(BaseStrategy):
         if elapsed_min > self.max_minutes_elapsed:
             return "HOLD"
 
-        if len(history) < self.lookback_minutes:
+        n_history = len(history)
+        if n_history < self.lookback_minutes:
             return "HOLD"
             
-        relevant_history = history.iloc[-self.lookback_minutes:]
-        past_price = relevant_history.iloc[0]['btc_price']
+        btc_price_arr = history['btc_price'].values
+        past_price = btc_price_arr[-self.lookback_minutes]
         current_btc = current_data['btc_price']
         
         change = (current_btc - past_price) / past_price
         
         # Adaptive volatility multiplier
-        if self.volatility_adapt and len(history) >= 60:
-            btc_prices = history['btc_price'].iloc[-60:]
-            returns = btc_prices.pct_change().dropna()
-            current_vol = returns.std()
+        if self.volatility_adapt and n_history >= 60:
+            prices_60 = btc_price_arr[-60:]
+            returns = np.diff(prices_60) / prices_60[:-1]
+            current_vol = np.std(returns, ddof=1)
             if current_vol > 0:
                 vol_mult = current_vol / self.volatility_base
                 vol_mult = max(self.vol_mult_min, min(self.vol_mult_max, vol_mult))
@@ -76,11 +78,11 @@ class BTCTrendStrategy(BaseStrategy):
         # Efficiency Ratio (ER)
         # Calculated over er_lookback minutes instead of lookback_minutes for stability
         er_lookback_val = self.er_lookback
-        if len(history) >= er_lookback_val:
-            er_history = history.iloc[-er_lookback_val:]
-            er_past_price = er_history.iloc[0]['btc_price']
-            price_diffs = er_history['btc_price'].diff().abs()
-            volatility = price_diffs.sum() + abs(current_btc - er_history.iloc[-1]['btc_price'])
+        if n_history >= er_lookback_val:
+            er_prices = btc_price_arr[-er_lookback_val:]
+            er_past_price = er_prices[0]
+            price_diffs = np.abs(np.diff(er_prices))
+            volatility = np.sum(price_diffs) + abs(current_btc - er_prices[-1])
             
             if volatility == 0:
                 er = 0
@@ -95,21 +97,21 @@ class BTCTrendStrategy(BaseStrategy):
         
         # EMA filter to avoid counter-trend entries in high/medium-term regimes
         if self.use_ema_filter:
-            if len(history) >= self.ema_span:
+            if n_history >= self.ema_span:
                 # Optimized O(1) EMA updating
-                if self._prev_ema is None or len(history) < self._prev_len:
+                if self._prev_ema is None or n_history < self._prev_len:
                     ema_series = history['btc_price'].ewm(span=self.ema_span, adjust=False).mean()
                     self._prev_ema = ema_series.iloc[-1]
-                    self._prev_len = len(history)
+                    self._prev_len = n_history
                 else:
-                    if len(history) == self._prev_len + 1:
+                    if n_history == self._prev_len + 1:
                         multiplier = 2.0 / (self.ema_span + 1.0)
                         self._prev_ema = current_btc * multiplier + self._prev_ema * (1.0 - multiplier)
-                        self._prev_len = len(history)
+                        self._prev_len = n_history
                     else:
                         ema_series = history['btc_price'].ewm(span=self.ema_span, adjust=False).mean()
                         self._prev_ema = ema_series.iloc[-1]
-                        self._prev_len = len(history)
+                        self._prev_len = n_history
                 ema = self._prev_ema
                 if change > 0 and current_btc < ema:
                     return "HOLD"
@@ -119,15 +121,16 @@ class BTCTrendStrategy(BaseStrategy):
         # Filter by cumulative trend since the start of the 15-minute resolution window
         if self.filter_strike_trend and 'timestamp' in history.columns:
             strike_price = None
+            history_ts = history['timestamp'].values
             # Fast reverse search up to 20 rows since window_start is at most 15 mins ago
-            for j in range(1, min(20, len(history) + 1)):
-                if history.iloc[-j]['timestamp'] == window_start:
-                    strike_price = history.iloc[-j]['btc_price']
+            for j in range(1, min(20, n_history + 1)):
+                if history_ts[-j] == window_start:
+                    strike_price = btc_price_arr[-j]
                     break
             if strike_price is None:
-                window_start_row = history[history['timestamp'] == window_start]
-                if not window_start_row.empty:
-                    strike_price = window_start_row.iloc[0]['btc_price']
+                indices = np.where(history_ts == window_start)[0]
+                if len(indices) > 0:
+                    strike_price = btc_price_arr[indices[0]]
             
             if strike_price is not None:
                 window_change = (current_btc - strike_price) / strike_price

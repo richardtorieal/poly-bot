@@ -17,18 +17,10 @@ def load_config():
 def objective(trial):
     config = load_config()
     
-    # 1. Base threshold
-    btc_threshold = trial.suggest_float('btc_threshold', 0.00005, 0.0004)
-    
-    # 2. Symmetry constraints (within 10% of each other)
-    # btc_threshold_up and btc_threshold_down must be within 10% of each other, and >= 0.00005
-    btc_threshold_up = trial.suggest_float('btc_threshold_up', max(0.00005, 0.9 * btc_threshold), 1.1 * btc_threshold)
-    btc_threshold_down = trial.suggest_float('btc_threshold_down', max(0.00005, 0.9 * btc_threshold_up), 1.1 * btc_threshold_up)
-    
-    # Check strict compliance
-    ratio = btc_threshold_up / btc_threshold_down
-    if ratio < 0.9 or ratio > 1.1:
-        return -999.0
+    # 1. Threshold Up/Down with symmetry constraints (within 10% of each other, and >= 0.00005)
+    btc_threshold_up = trial.suggest_float('btc_threshold_up', 0.00005, 0.0004)
+    btc_threshold_down = trial.suggest_float('btc_threshold_down', max(0.00005, 0.9091 * btc_threshold_up), 1.1 * btc_threshold_up)
+    btc_threshold = (btc_threshold_up + btc_threshold_down) / 2.0
     
     # 3. Minimum values
     er_threshold = trial.suggest_float('er_threshold', 0.50, 0.98)
@@ -124,8 +116,13 @@ def objective(trial):
 
 def main():
     logger.info("Starting Strict IS Optuna parameter sweep...")
-    study = optuna.create_study(direction="maximize")
-    study.optimize(objective, n_trials=300)
+    study = optuna.create_study(
+        study_name="strict_is_sweep",
+        storage="sqlite:///optuna_study_temp.db",
+        load_if_exists=True,
+        direction="maximize"
+    )
+    study.optimize(objective, n_trials=40)
     
     logger.info("Sweep complete. Analyzing trials based strictly on IS Sharpe...")
     
