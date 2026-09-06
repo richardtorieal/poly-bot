@@ -748,3 +748,32 @@ By running a focused parallel Optuna sweep (900 trials total) strictly optimizin
 - The baseline parameters (Trial 0) remained the optimal configuration (IS Sharpe: 173.78, OOS Sharpe: 155.15, OOS MaxDD: -6.03%).
 - A parallel Optuna sweep (180 trials total) strictly optimizing on In-Sample (IS) Sharpe confirmed that no new parameter configuration outperformed the baseline configuration under all constraints.
 - Consequently, the feature branch was discarded and the current baseline parameters were retained.
+
+## Optimization Run (2026-09-06 - Antigravity In-Sample Tuning)
+### Hypothesis
+By fine-tuning `btc_threshold_down` to `0.0001657531337629615` against `btc_threshold_up` of `0.0001500327904043339`, we establish an optimal symmetric threshold pair with 9.48% relative difference (strictly satisfying the <= 10% symmetry constraint and both >= 0.00005 minimum value constraints). This adjustment improves the In-Sample (IS) Sharpe Ratio from 176.14 to 176.57 (+0.43 improvement) and In-Sample PnL% from 5,213,012.65% to 5,280,694.82% without degrading Out-of-Sample metrics (passive validation OOS Sharpe improves to 151.73 and MaxDD stays at -6.03%, strictly superior to the -30% limit).
+
+### Results
+- Optimal parameters:
+  - `btc_threshold`: 0.00020369169159651892
+  - `btc_threshold_up`: 0.0001500327904043339
+  - `btc_threshold_down`: 0.0001657531337629615
+  - `lookback_minutes`: 2
+  - `er_threshold`: 0.5631848175284595
+  - `exit_profit_pct`: 0.01203635473503178
+  - `stop_loss_pct`: 0.018183729485678576
+  - `max_minutes_elapsed`: 10.387554981626314
+  - `volatility_adapt`: True
+  - `volatility_base`: 0.0005313916577695697
+  - `vol_mult_min`: 0.3962145197136402
+  - `vol_mult_max`: 1.3586735502614775
+- In-Sample (IS) Results:
+  - Sharpe: 176.57 (improved from 176.14)
+  - PnL%: 5280694.82%
+  - Win Rate: 82.6%
+- Out-of-Sample (OOS) Results (Passive Validation):
+  - Sharpe: 151.73 (improved from 151.66)
+  - PnL%: 1123.97%
+  - Win Rate: 82.1%
+  - MaxDD: -6.03% (strictly better than -30%)
+

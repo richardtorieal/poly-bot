@@ -471,3 +471,14 @@
 - [x] Run parallel parameter optimization sweeps (160 trials) and local neighborhood search (200 trials) under strict constraints @quant-dev
 - [x] Verify the adjusted baseline parameters remain the optimal configuration (IS Sharpe: 176.14, OOS Sharpe: 151.66, OOS MaxDD: -6.03%) under all mandated constraints @quant-dev
 - [x] Merge feature branch back to `main`, push to origin, restart PM2 process `poly-bot-btc-trend` live @quant-dev
+
+## Iterative Strategy Tuning & Parameter Sweep (2026-09-06 - Antigravity Run) 📊
+- [x] Check out feature branch `feature/opt-1788720068` from `main` @quant-dev
+- [x] Verify dataset integrity using `sync_truthful_data.py` (15,734 rows verified) @quant-dev
+- [x] Execute baseline `validate_loop.py` to establish reference metrics (IS Sharpe: 176.14, OOS Sharpe: 151.66, OOS MaxDD: -6.03%) @quant-dev
+- [x] Run parameter exploration and fine-tuning on In-Sample (IS) dataset enforcing all symmetry and minimum boundary constraints @quant-dev
+- [x] Identify optimal parameter combination that improves IS Sharpe to 176.57 (+0.43 improvement) and passively validates with OOS Sharpe of 151.73 and OOS MaxDD of -6.03% (strictly better than -30%) by setting `btc_threshold_down` to 0.0001657531337629615 (9.48% symmetry diff with `btc_threshold_up`) @quant-dev
+- [x] Mutate `config/strategy_config.yaml` with optimized parameters on feature branch @quant-dev
+- [x] Validate results locally using `validate_loop.py` on the feature branch @quant-dev
+- [x] Merge feature branch back to `main`, push to origin, restart PM2 process `poly-bot-btc-trend` live @quant-dev
+
