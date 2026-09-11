@@ -11,7 +11,7 @@ strategy:
     ema_span: 37
     er_lookback: 2
     er_threshold: 0.5631848175284595
-    exit_profit_pct: 0.01203635473503178
+    exit_profit_pct: 0.010
     filter_strike_trend: true
     lookback_minutes: 2
     max_minutes_elapsed: 10.387554981626314
