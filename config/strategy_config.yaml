@@ -21,6 +21,6 @@ strategy:
     trailing_stop_drop_pct: 0.0010129204273294536
     use_ema_filter: false
     vol_mult_max: 1.3586735502614775
-    vol_mult_min: 0.3962145197136402
+    vol_mult_min: 0.35
     volatility_adapt: true
     volatility_base: 0.0005313916577695697
