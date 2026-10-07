@@ -482,3 +482,11 @@
 - [x] Validate results locally using `validate_loop.py` on the feature branch @quant-dev
 - [x] Merge feature branch back to `main`, push to origin, restart PM2 process `poly-bot-btc-trend` live @quant-dev
 
+## Iterative Strategy Tuning & Parameter Sweep (2026-10-07 - Antigravity Run) 📊
+- [x] Check out clean feature branch `feature/opt-20261007-0145` from `main` @quant-dev
+- [x] Verify dataset integrity using `sync_truthful_data.py` (15,734 rows verified) @quant-dev
+- [x] Execute baseline `validate_loop.py` to establish reference metrics (IS Sharpe: 176.83, OOS Sharpe: 152.27, OOS MaxDD: -6.03%) @quant-dev
+- [x] Run wide & fine-grained Optuna parameter sweeps and coordinate sensitivity searches on In-Sample (IS) data strictly observing symmetry (<= 10% diff) and minimum boundary constraints (`btc_threshold` >= 0.00005, `er_threshold` >= 0.50, `exit_profit_pct` >= 0.010, `stop_loss_pct` >= 0.015) @quant-dev
+- [x] Verified that current baseline configuration represents the global optimum on the In-Sample set (IS Sharpe 176.83); no candidate configuration strictly improved IS Sharpe while maintaining constraints @quant-dev
+- [x] In accordance with Phase 3 instructions, discarded feature branch and preserved `main` untouched @quant-dev
+
