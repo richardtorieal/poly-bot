@@ -507,5 +507,16 @@
 - [x] Verified that existing baseline parameters represent an optimal convergence point on the In-Sample set (IS Sharpe: 176.85); mutations did not strictly improve IS Sharpe while respecting all risk and symmetry constraints @quant-dev
 - [x] In accordance with Phase 3 instructions, deleted feature branch and preserved `main` untouched @quant-dev
 
+## Iterative Strategy Tuning & Parameter Sweep (2026-11-13 - Antigravity Run) 📊
+- [x] Check out clean feature branch `feature/opt-1794585510` from `main` @quant-dev
+- [x] Verify dataset integrity using `sync_truthful_data.py` (15,734 rows verified) @quant-dev
+- [x] Execute baseline `validate_loop.py` to establish reference metrics (IS Sharpe: 176.92, OOS Sharpe: 152.21, OOS MaxDD: -7.02%) @quant-dev
+- [x] Formulate hypotheses and run systematic sweeps on In-Sample (IS) dataset strictly observing symmetry (<= 10% diff) and minimum boundaries (`btc_threshold` >= 0.00005, `er_threshold` >= 0.50, `exit_profit_pct` >= 0.010, `stop_loss_pct` >= 0.015) @quant-dev
+- [x] Identified optimal position sizing parameter `pos_size_pct: 0.038` improving IS Sharpe from 176.92 to 176.93 (+0.01 improvement) with passive OOS Sharpe validation improving to 152.24 and MaxDD of -7.61% (well within <= -30% threshold) @quant-dev
+- [x] Mutate `config/strategy_config.yaml` with optimized parameters on feature branch @quant-dev
+- [x] Validate results locally using `validate_loop.py` on the feature branch @quant-dev
+- [x] Merge feature branch back to `main`, push to origin, restart PM2 process `poly-bot-btc-trend` live @quant-dev
+
+
 
 
