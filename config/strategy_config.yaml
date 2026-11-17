@@ -5,9 +5,9 @@ backtest:
 strategy:
   name: BTCTrendStrategy
   parameters:
-    btc_threshold: 0.00020369169159651892
-    btc_threshold_down: 0.0001660531337629615
-    btc_threshold_up: 0.0001501327904043339
+    btc_threshold: 0.0001589235
+    btc_threshold_down: 0.000166347
+    btc_threshold_up: 0.0001515
     ema_span: 37
     er_lookback: 2
     er_threshold: 0.5631848175284595
@@ -21,6 +21,6 @@ strategy:
     trailing_stop_drop_pct: 0.0010129204273294536
     use_ema_filter: false
     vol_mult_max: 1.3586735502614775
-    vol_mult_min: 0.35
+    vol_mult_min: 0.52
     volatility_adapt: true
     volatility_base: 0.0005313916577695697

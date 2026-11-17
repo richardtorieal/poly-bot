@@ -4731,3 +4731,47 @@
       MaxDD: -7.61%
     ---------------------------------------------------
     
+    DATE: 2026-11-17 10:54:02
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.00020369169159651892, 'btc_threshold_down': 0.0001660531337629615, 'btc_threshold_up': 0.0001501327904043339, 'ema_span': 37, 'er_lookback': 2, 'er_threshold': 0.5631848175284595, 'exit_profit_pct': 0.01, 'filter_strike_trend': True, 'lookback_minutes': 2, 'max_minutes_elapsed': 10.387554981626314, 'pos_size_pct': 0.038, 'stop_loss_pct': 0.01785, 'trailing_stop_activation_pct': 0.005, 'trailing_stop_drop_pct': 0.0010129204273294536, 'use_ema_filter': False, 'vol_mult_max': 1.3586735502614775, 'vol_mult_min': 0.35, 'volatility_adapt': True, 'volatility_base': 0.0005313916577695697}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 2414192590.52%
+      Win Rate: 82.6%
+      Sharpe: 172.46
+      Trades: 4468
+
+    IN-SAMPLE (IS):
+      PnL%: 94367832.65%
+      Win Rate: 82.7%
+      Sharpe: 176.93
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 2270.08%
+      Win Rate: 82.1%
+      Sharpe: 152.24
+      MaxDD: -7.61%
+    ---------------------------------------------------
+    
+    DATE: 2026-11-17 10:58:44
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.0001589235, 'btc_threshold_down': 0.000166347, 'btc_threshold_up': 0.0001515, 'ema_span': 37, 'er_lookback': 2, 'er_threshold': 0.5631848175284595, 'exit_profit_pct': 0.01, 'filter_strike_trend': True, 'lookback_minutes': 2, 'max_minutes_elapsed': 10.387554981626314, 'pos_size_pct': 0.038, 'stop_loss_pct': 0.01785, 'trailing_stop_activation_pct': 0.005, 'trailing_stop_drop_pct': 0.0010129204273294536, 'use_ema_filter': False, 'vol_mult_max': 1.3586735502614775, 'vol_mult_min': 0.52, 'volatility_adapt': True, 'volatility_base': 0.0005313916577695697}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 2309433492.53%
+      Win Rate: 82.7%
+      Sharpe: 172.51
+      Trades: 4428
+
+    IN-SAMPLE (IS):
+      PnL%: 92170018.74%
+      Win Rate: 82.8%
+      Sharpe: 176.98
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 2221.30%
+      Win Rate: 82.2%
+      Sharpe: 152.16
+      MaxDD: -7.61%
+    ---------------------------------------------------
+    
