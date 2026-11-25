@@ -4841,3 +4841,69 @@
       MaxDD: -7.61%
     ---------------------------------------------------
     
+    DATE: 2026-11-21 16:43:47
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.0001589235, 'btc_threshold_down': 0.000166347, 'btc_threshold_up': 0.0001515, 'ema_span': 37, 'er_lookback': 2, 'er_threshold': 0.5631848175284595, 'exit_profit_pct': 0.01, 'filter_strike_trend': True, 'lookback_minutes': 2, 'max_minutes_elapsed': 10.387554981626314, 'pos_size_pct': 0.038, 'stop_loss_pct': 0.01785, 'trailing_stop_activation_pct': 0.005, 'trailing_stop_drop_pct': 0.0010129204273294536, 'use_ema_filter': False, 'vol_mult_max': 1.35, 'vol_mult_min': 0.515, 'volatility_adapt': True, 'volatility_base': 0.0005313916577695697}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 2316844529.78%
+      Win Rate: 82.7%
+      Sharpe: 172.54
+      Trades: 4431
+
+    IN-SAMPLE (IS):
+      PnL%: 92337445.83%
+      Win Rate: 82.8%
+      Sharpe: 177.01
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 2224.53%
+      Win Rate: 82.3%
+      Sharpe: 152.23
+      MaxDD: -7.61%
+    ---------------------------------------------------
+    
+    DATE: 2026-11-25 11:44:35
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.0001589235, 'btc_threshold_down': 0.000166347, 'btc_threshold_up': 0.0001515, 'ema_span': 37, 'er_lookback': 2, 'er_threshold': 0.5631848175284595, 'exit_profit_pct': 0.01, 'filter_strike_trend': True, 'lookback_minutes': 2, 'max_minutes_elapsed': 10.387554981626314, 'pos_size_pct': 0.038, 'stop_loss_pct': 0.01785, 'trailing_stop_activation_pct': 0.005, 'trailing_stop_drop_pct': 0.0010129204273294536, 'use_ema_filter': False, 'vol_mult_max': 1.35, 'vol_mult_min': 0.515, 'volatility_adapt': True, 'volatility_base': 0.0005313916577695697}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 2316844529.78%
+      Win Rate: 82.7%
+      Sharpe: 172.54
+      Trades: 4431
+
+    IN-SAMPLE (IS):
+      PnL%: 92337445.83%
+      Win Rate: 82.8%
+      Sharpe: 177.01
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 2224.53%
+      Win Rate: 82.3%
+      Sharpe: 152.23
+      MaxDD: -7.61%
+    ---------------------------------------------------
+    
+    DATE: 2026-11-25 11:50:57
+    STRATEGY: BTCTrendStrategy
+    PARAMS: {'btc_threshold': 0.0001589235, 'btc_threshold_down': 0.000166347, 'btc_threshold_up': 0.0001515, 'ema_span': 37, 'er_lookback': 2, 'er_threshold': 0.5631848175284595, 'exit_profit_pct': 0.01, 'filter_strike_trend': True, 'lookback_minutes': 2, 'max_minutes_elapsed': 10.387554981626314, 'pos_size_pct': 0.042, 'stop_loss_pct': 0.01785, 'trailing_stop_activation_pct': 0.005, 'trailing_stop_drop_pct': 0.0010129204273294536, 'use_ema_filter': False, 'vol_mult_max': 1.35, 'vol_mult_min': 0.515, 'volatility_adapt': True, 'volatility_base': 0.0005313916577695697}
+    
+    OVERALL (FULL HISTORY):
+      PnL%: 13628308615.78%
+      Win Rate: 82.7%
+      Sharpe: 172.57
+      Trades: 4431
+
+    IN-SAMPLE (IS):
+      PnL%: 387964135.36%
+      Win Rate: 82.8%
+      Sharpe: 177.02
+      
+    OUT-OF-SAMPLE (OOS):
+      PnL%: 3128.27%
+      Win Rate: 82.3%
+      Sharpe: 152.26
+      MaxDD: -8.39%
+    ---------------------------------------------------
+    
